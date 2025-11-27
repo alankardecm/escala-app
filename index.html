@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Escalas - Gestão Automática</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Carregando Sistema de Escalas...</p>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app" class="app-container" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <path d="M16 4L4 10V22L16 28L28 22V10L16 4Z" fill="url(#gradient1)" />
+                        <defs>
+                            <linearGradient id="gradient1" x1="4" y1="4" x2="28" y2="28">
+                                <stop offset="0%" style="stop-color:#667eea" />
+                                <stop offset="100%" style="stop-color:#764ba2" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <h1>EscalaApp</h1>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="dashboard">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M3 7L10 3L17 7V17L10 21L3 17V7Z" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    Dashboard
+                </button>
+                <button class="nav-item" data-view="calendar">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="2" />
+                        <line x1="3" y1="8" x2="17" y2="8" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    Escala do Mês
+                </button>
+                <button class="nav-item" data-view="employees">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="2" />
+                        <path d="M4 17C4 13.5 6.5 12 10 12C13.5 12 16 13.5 16 17" stroke="currentColor"
+                            stroke-width="2" />
+                    </svg>
+                    Funcionários
+                </button>
+                <button class="nav-item" data-view="shifts">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" />
+                        <path d="M10 6V10L13 13" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    Turnos
+                </button>
+                <button class="nav-item" data-view="oncall">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 3L12 8L17 9L13 13L14 18L10 15L6 18L7 13L3 9L8 8L10 3Z" stroke="currentColor"
+                            stroke-width="2" />
+                    </svg>
+                    Plantões
+                </button>
+                <button class="nav-item" data-view="holidays">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="2" />
+                        <path d="M10 8V12M8 10H12" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    Feriados
+                </button>
+                <button class="nav-item" data-view="settings">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="2" />
+                        <path
+                            d="M10 1V4M10 16V19M19 10H16M4 10H1M16.24 16.24L14.12 14.12M5.88 5.88L3.76 3.76M16.24 3.76L14.12 5.88M5.88 14.12L3.76 16.24"
+                            stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    Configurações
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-export">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 12V4M8 12L11 9M8 12L5 9M2 14H14" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    Exportar Excel
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-left">
+                    <h2 id="pageTitle">Dashboard</h2>
+                    <p id="pageSubtitle">Visão geral do sistema de escalas</p>
+                </div>
+                <div class="header-right">
+                    <div class="month-selector">
+                        <button id="prevMonth" class="btn-icon">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M12 5L7 10L12 15" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                        </button>
+                        <span id="currentMonth">Dezembro 2025</span>
+                        <button id="nextMonth" class="btn-icon">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M8 5L13 10L8 15" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                        </button>
+                    </div>
+                    <button class="btn-primary" id="generateSchedule">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2"
+                                stroke="currentColor" stroke-width="2" />
+                            <path d="M8 2L8 8L12 8" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                        Gerar Escala
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dynamic Content Views -->
+            <div id="contentContainer" class="content-container">
+                <!-- Dashboard View -->
+                <div id="dashboardView" class="view active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="9" r="4" stroke="white" stroke-width="2" />
+                                    <path d="M4 21C4 16.5 7.5 15 12 15C16.5 15 20 16.5 20 21" stroke="white"
+                                        stroke-width="2" />
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Total de Funcionários</p>
+                                <h3 class="stat-value" id="totalEmployees">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="9" stroke="white" stroke-width="2" />
+                                    <path d="M12 7V12L15 15" stroke="white" stroke-width="2" />
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Turnos Cadastrados</p>
+                                <h3 class="stat-value" id="totalShifts">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 3L14 9L20 10L15 15L17 21L12 18L7 21L9 15L4 10L10 9L12 3Z"
+                                        stroke="white" stroke-width="2" />
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Plantões Ativos</p>
+                                <h3 class="stat-value" id="totalOncall">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <rect x="4" y="5" width="16" height="16" rx="2" stroke="white" stroke-width="2" />
+                                    <path d="M12 9V15M9 12H15" stroke="white" stroke-width="2" />
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Feriados no Mês</p>
+                                <h3 class="stat-value" id="totalHolidays">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Setores e Equipes</h3>
+                                <button class="btn-secondary btn-sm">Ver Todos</button>
+                            </div>
+                            <div class="card-body" id="sectorsOverview">
+                                <p class="empty-state">Nenhum setor cadastrado ainda</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Próximos Feriados</h3>
+                                <button class="btn-secondary btn-sm">Gerenciar</button>
+                            </div>
+                            <div class="card-body" id="upcomingHolidays">
+                                <p class="empty-state">Carregando feriados...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar View -->
+                <div id="calendarView" class="view">
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <div class="calendar-legend">
+                                <h4>Legenda de Turnos</h4>
+                                <div id="shiftLegend" class="legend-items"></div>
+                            </div>
+                        </div>
+                        <div class="calendar-table-wrapper">
+                            <table id="scheduleTable" class="schedule-table">
+                                <thead>
+                                    <tr id="calendarHeader">
+                                        <th class="sticky-col">Setor</th>
+                                        <th class="sticky-col">Funcionário</th>
+                                        <th class="sticky-col">Horário</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scheduleBody">
+                                    <tr>
+                                        <td colspan="100%" class="empty-state">Clique em "Gerar Escala" para criar a
+                                            escala do mês</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employees View -->
+                <div id="employeesView" class="view">
+                    <div class="view-header">
+                        <button class="btn-primary" id="addEmployee">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            Adicionar Funcionário
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Setor</th>
+                                    <th>Turno</th>
+                                    <th>Padrão de Escala</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeesTable">
+                                <tr>
+                                    <td colspan="5" class="empty-state">Nenhum funcionário cadastrado</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Shifts View -->
+                <div id="shiftsView" class="view">
+                    <div class="view-header">
+                        <button class="btn-primary" id="addShift">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            Adicionar Turno
+                        </button>
+                    </div>
+                    <div class="shifts-grid" id="shiftsGrid">
+                        <p class="empty-state">Nenhum turno cadastrado</p>
+                    </div>
+                </div>
+
+                <!-- Oncall View -->
+                <div id="oncallView" class="view">
+                    <div class="view-header">
+                        <button class="btn-primary" id="addOncall">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            Configurar Plantão
+                        </button>
+                    </div>
+                    <div class="oncall-container" id="oncallContainer">
+                        <p class="empty-state">Nenhum plantão configurado</p>
+                    </div>
+                </div>
+
+                <!-- Holidays View -->
+                <div id="holidaysView" class="view">
+                    <div class="view-header">
+                        <button class="btn-primary" id="addHoliday">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            Adicionar Feriado
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Nome do Feriado</th>
+                                    <th>Tipo</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="holidaysTable">
+                                <tr>
+                                    <td colspan="4" class="empty-state">Carregando feriados...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Settings View -->
+                <div id="settingsView" class="view">
+                    <div class="settings-container">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>🚀 Importação Rápida</h3>
+                            </div>
+                            <div class="card-body">
+                                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                                    Importe todos os dados da escala de Novembro automaticamente (funcionários, turnos,
+                                    plantões e setores).
+                                </p>
+                                <button class="btn-primary" id="quickImport" style="width: 100%;">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M8 4V12M8 4L5 7M8 4L11 7M2 14H14" stroke="currentColor"
+                                            stroke-width="2" />
+                                    </svg>
+                                    Importar Dados Completos
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card" style="margin-top: 1.5rem;">
+                            <div class="card-header">
+                                <h3>Dados do Sistema</h3>
+                            </div>
+                            <div class="card-body">
+                                <button class="btn-secondary" id="importExcel">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M8 4V12M8 4L5 7M8 4L11 7M2 14H14" stroke="currentColor"
+                                            stroke-width="2" />
+                                    </svg>
+                                    Importar do Excel
+                                </button>
+                                <button class="btn-secondary" id="exportData">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M8 12V4M8 12L11 9M8 12L5 9M2 14H14" stroke="currentColor"
+                                            stroke-width="2" />
+                                    </svg>
+                                    Exportar Dados
+                                </button>
+                                <button class="btn-danger" id="clearData">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="2" />
+                                    </svg>
+                                    Limpar Todos os Dados
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Container -->
+    <div id="modalContainer"></div>
+
+    <script src="import-data.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
