@@ -8,64 +8,89 @@
 }
 
 :root {
-    /* Color Palette */
-    --primary: #667eea;
-    --primary-dark: #5568d3;
-    --secondary: #764ba2;
-    --accent: #f093fb;
-    
+    /* NetTurbo Brand Colors - Dark Mode (Default) */
+    --primary: #BFD83E; /* Lime Green */
+    --primary-dark: #a8c235;
+    --secondary: #BFD83E; /* Lime Green */
+    --accent: #BFD83E; /* Lime Green */
+
     /* Neutrals */
-    --bg-primary: #0f0f23;
-    --bg-secondary: #1a1a2e;
+    --bg-primary: #0f0f23; /* Azul escuro profundo */
+    --bg-secondary: #1a1a2e; /* Sidebar/Header */
     --bg-tertiary: #25253f;
-    --bg-card: #1e1e38;
-    
+    --bg-card: #1e1e38; /* Cards/Containers */
+
     /* Text */
     --text-primary: #ffffff;
     --text-secondary: #a0a0c0;
     --text-muted: #6c6c8e;
-    
+
     /* Borders */
     --border-color: #2a2a46;
     --border-hover: #3f3f64;
-    
+
     /* Shadows */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-    --shadow-glow: 0 0 20px rgba(102, 126, 234, 0.3);
-    
+    --shadow-glow: 0 0 20px rgba(191, 216, 62, 0.2);
+
     /* Shift Colors (from Excel) */
-    --shift-t1: #00b0f0; /* Cyan/Blue */
-    --shift-t2: #00b050; /* Green */
-    --shift-t3: #9966ff; /* Purple */
-    --shift-fc: #ff6b9d; /* Pink */
-    --shift-fe: #ffa500; /* Orange */
-    --shift-yellow: #ffeb3b; /* Yellow */
-    --shift-red: #f44336; /* Red */
-    --shift-off: #4a4a6a; /* Gray for days off */
-    --shift-holiday: #2d2d4a; /* Dark for holidays */
-    
+    --shift-t1: #00b0f0;
+    --shift-t2: #00b050;
+    --shift-t3: #9966ff;
+    --shift-fc: #ff6b9d;
+    --shift-fe: #ffa500;
+    --shift-yellow: #ffeb3b;
+    --shift-red: #f44336;
+    --shift-off: #4a4a6a;
+    --shift-holiday: #2d2d4a;
+
     /* Typography */
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    
+    --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
     /* Spacing */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
     --spacing-lg: 1.5rem;
     --spacing-xl: 2rem;
-    
+
     /* Border Radius */
     --radius-sm: 6px;
     --radius-md: 12px;
     --radius-lg: 16px;
     --radius-xl: 24px;
-    
+
     /* Transitions */
     --transition-fast: 0.15s ease;
     --transition-base: 0.3s ease;
     --transition-slow: 0.5s ease;
+}
+
+/* Light Mode Variables */
+body.light-mode,
+html.light-mode body {
+    --primary: #a8c235;
+    --primary-dark: #8fa82d;
+    --secondary: #a8c235;
+
+    --bg-primary: #f5f5f5;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f0f0f0;
+    --bg-card: #ffffff;
+
+    --text-primary: #18181b;
+    --text-secondary: #52525b;
+    --text-muted: #a1a1aa;
+
+    --border-color: #e4e4e7;
+    --border-hover: #d4d4d8;
+
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+    --shadow-glow: 0 0 20px rgba(168, 194, 53, 0.15);
 }
 
 body {
@@ -273,10 +298,13 @@ body {
    MAIN CONTENT
    =========================== */
 .main-content {
+    flex: 1;
     display: flex;
     flex-direction: column;
     background: var(--bg-primary);
     overflow: hidden;
+    /* Adicionado para garantir que o conteúdo role corretamente */
+    min-height: 0;
 }
 
 .main-header {
@@ -286,7 +314,8 @@ body {
     padding: var(--spacing-xl);
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
-    position: relative;
+    position: sticky; /* Adicionado para fixar o cabeçalho */
+    top: 0;
     z-index: 10;
 }
 
@@ -418,12 +447,17 @@ body {
 .content-container {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: var(--spacing-xl);
+    /* Correção: Garante que o container de conteúdo ocupe o espaço restante */
+    min-height: 0;
 }
 
 .view {
     display: none;
     animation: slideIn 0.3s ease;
+    /* Correção: Garante que o conteúdo da view ocupe o espaço disponível */
+    min-height: 100%;
 }
 
 .view.active {
@@ -435,6 +469,7 @@ body {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -453,7 +488,7 @@ body {
    =========================== */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-xl);
 }
@@ -488,6 +523,16 @@ body {
     border-color: var(--border-hover);
 }
 
+/* Stat cards clicáveis */
+.stat-card[data-navigate] {
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.stat-card[data-navigate]:active {
+    transform: translateY(-2px);
+}
+
 .stat-icon {
     width: 56px;
     height: 56px;
@@ -520,7 +565,7 @@ body {
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: var(--spacing-lg);
 }
 
@@ -533,6 +578,7 @@ body {
     border-radius: var(--radius-lg);
     overflow: hidden;
     transition: all var(--transition-base);
+    width: 100%;
 }
 
 .card:hover {
@@ -564,12 +610,16 @@ body {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    overflow: hidden;
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
 }
 
 .data-table {
     width: 100%;
+    max-width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .data-table thead {
@@ -612,7 +662,10 @@ body {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    overflow: hidden;
+    overflow: hidden; /* Mantém o border-radius */
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 200px); /* Altura máxima do container */
 }
 
 .calendar-header {
@@ -652,11 +705,18 @@ body {
 
 .calendar-table-wrapper {
     overflow-x: auto;
-    max-height: calc(100vh - 400px);
+    overflow-y: auto;
+    /* Flex grow para preencher o espaço disponível */
+    flex: 1;
+    position: relative;
+    /* Adicionado para melhor visualização em mobile */
+    -webkit-overflow-scrolling: touch;
 }
 
 .schedule-table {
-    width: 100%;
+    /* Removido width: 100% para permitir que o conteúdo defina a largura mínima */
+    /* width: 100%; */
+    min-width: 1200px; /* Valor arbitrário para forçar a rolagem horizontal */
     border-collapse: collapse;
     background: var(--bg-card);
 }
@@ -664,7 +724,11 @@ body {
 .schedule-table thead {
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 20;
+    background: var(--bg-tertiary);
+}
+
+.schedule-table thead th {
     background: var(--bg-tertiary);
 }
 
@@ -683,7 +747,7 @@ body {
     position: sticky;
     left: 0;
     background: var(--bg-tertiary);
-    z-index: 11;
+    z-index: 25; /* Maior que thead (20) para ficar no canto superior esquerdo */
     text-align: left;
     padding: var(--spacing-sm) var(--spacing-md);
     min-width: 120px;
@@ -712,9 +776,45 @@ body {
     position: sticky;
     left: 0;
     background: var(--bg-card);
-    z-index: 5;
+    z-index: 10; /* Abaixo do thead (20) mas acima das células normais */
     text-align: left;
     padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.schedule-table td.sticky-col:nth-child(2) {
+    left: 120px;
+}
+
+.schedule-table td.sticky-col:nth-child(3) {
+    left: 270px;
+}
+
+@media (max-width: 768px) {
+    .schedule-table th.sticky-col {
+        min-width: 80px; /* Reduz a largura da primeira coluna */
+    }
+
+    .schedule-table th.sticky-col:nth-child(2) {
+        left: 80px; /* Ajusta a posição da segunda coluna */
+        min-width: 120px; /* Reduz a largura da segunda coluna */
+    }
+
+    .schedule-table th.sticky-col:nth-child(3) {
+        left: 200px; /* Ajusta a posição da terceira coluna */
+        min-width: 80px; /* Reduz a largura da terceira coluna */
+    }
+
+    .schedule-table td.sticky-col {
+        min-width: 80px;
+    }
+
+    .schedule-table td.sticky-col:nth-child(2) {
+        left: 80px;
+    }
+
+    .schedule-table td.sticky-col:nth-child(3) {
+        left: 200px;
+    }
 }
 
 .schedule-table td.sticky-col:nth-child(2) {
@@ -756,8 +856,11 @@ body {
    =========================== */
 .shifts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--spacing-lg);
+    width: 100%;
+    /* Correção: Adiciona um mínimo para garantir que o grid não quebre em telas menores */
+    min-width: 0;
 }
 
 .shift-card {
@@ -826,8 +929,11 @@ body {
    =========================== */
 .oncall-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--spacing-lg);
+    width: 100%;
+    /* Correção: Adiciona um mínimo para garantir que o grid não quebre em telas menores */
+    min-width: 0;
 }
 
 .oncall-card {
@@ -885,7 +991,9 @@ body {
    SETTINGS
    =========================== */
 .settings-container {
-    max-width: 800px;
+    /* Removendo max-width para que o conteúdo preencha a tela, conforme solicitado */
+    /* max-width: 800px; */
+    width: 100%;
 }
 
 .settings-container .card-body {
@@ -929,6 +1037,7 @@ body {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1049,11 +1158,26 @@ body {
 /* ===========================
    RESPONSIVE
    =========================== */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    display: none;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
 @media (max-width: 1024px) {
     .app-container {
         grid-template-columns: 1fr;
     }
-    
+
     .sidebar {
         position: fixed;
         top: 0;
@@ -1062,34 +1186,73 @@ body {
         z-index: 100;
         transition: left var(--transition-base);
     }
-    
+
     .sidebar.open {
         left: 0;
     }
-    
+
     .dashboard-grid {
         grid-template-columns: 1fr;
+    }
+
+    .menu-toggle {
+        display: flex !important; /* Força a exibição do botão de menu */
+        order: -1; /* Coloca o botão à esquerda */
+        margin-right: var(--spacing-md);
+    }
+
+    .header-left {
+        flex: 1;
     }
 }
 
 @media (max-width: 768px) {
     .main-header {
-        flex-direction: column;
-        gap: var(--spacing-lg);
-        align-items: flex-start;
+        /* Ajuste para mobile: mantém a linha, mas permite quebra de linha se necessário */
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+        padding: var(--spacing-lg);
     }
-    
-    .header-right {
+
+    .header-left {
         width: 100%;
-        justify-content: space-between;
+        order: 1; /* Move o título para baixo do botão e do seletor de mês */
     }
-    
+
+    .header-right {
+        width: auto;
+        flex: 1;
+        justify-content: flex-end;
+        order: 0;
+    }
+
+    .month-selector {
+        order: 1;
+    }
+
+    .btn-primary#generateSchedule {
+        order: 2;
+    }
+
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .shifts-grid,
     .oncall-container {
         grid-template-columns: 1fr;
+    }
+
+    .calendar-legend {
+        padding: var(--spacing-md);
+    }
+
+    .legend-items {
+        gap: var(--spacing-sm);
+    }
+
+    .legend-color {
+        width: 20px;
+        height: 20px;
     }
 }

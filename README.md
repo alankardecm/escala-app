@@ -182,10 +182,12 @@ Em feriados nacionais, o sistema automaticamente converte turnos de trabalho em 
 
 ```
 24 - ESCALA APP/
-├── index.html          # Interface principal do sistema
+├── index.html          # Interface principal do sistema (Web)
 ├── styles.css          # Estilos e tema dark mode
-├── app.js             # Lógica principal da aplicação
+├── app.js             # Lógica principal da aplicação Web
 ├── import-data.js     # Dados de importação + gerador inteligente
+├── escala_flex.py     # Versão Python/Streamlit (Protótipo)
+├── escala.db          # Banco de dados SQLite (Uso do Python)
 └── README.md          # Este arquivo (documentação)
 ```
 
@@ -362,9 +364,9 @@ Para solicitar novas funcionalidades ou reportar bugs, documente em um arquivo `
 
 Sistema desenvolvido para uso interno. Todos os direitos reservados.
 
-**Versão:** 1.0.0  
+**Versão:** 1.1.0  
 **Data:** Novembro 2025  
-**Última Atualização:** 26/11/2025
+**Última Atualização:** 28/11/2025
 
 ---
 

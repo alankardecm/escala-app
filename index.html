@@ -7,13 +7,20 @@
     <title>Sistema de Escalas - Gestão Automática</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <!-- Aplicar tema ANTES de renderizar para evitar flash -->
+    <script>
+        if (localStorage.getItem('theme') === 'light-mode') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
 </head>
 
 <body>
-    <!-- Loading Screen -->
+
     <div id="loadingScreen" class="loading-screen">
         <div class="loading-spinner"></div>
         <p>Carregando Sistema de Escalas...</p>
@@ -93,6 +100,16 @@
             </nav>
 
             <div class="sidebar-footer">
+                <button type="button" id="themeToggle" class="btn-secondary"
+                    style="width: 100%; margin-bottom: 0.5rem; justify-content: center;"
+                    onclick="document.body.classList.toggle('light-mode'); document.documentElement.classList.toggle('light-mode'); localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light-mode' : 'dark-mode');">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path
+                            d="M8 2V4M8 12V14M2 8H4M12 8H14M12.24 12.24L10.83 10.83M5.17 5.17L3.76 3.76M12.24 3.76L10.83 5.17M5.17 10.83L3.76 12.24M8 11C9.65685 11 11 9.65685 11 8C11 6.34315 9.65685 5 8 5C6.34315 5 5 6.34315 5 8C5 9.65685 6.34315 11 8 11Z"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Tema Claro/Escuro
+                </button>
                 <button class="btn-export">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M8 12V4M8 12L11 9M8 12L5 9M2 14H14" stroke="currentColor" stroke-width="2" />
@@ -102,9 +119,19 @@
             </div>
         </aside>
 
+        <!-- Mobile Overlay for Sidebar -->
+        <div id="sidebarOverlay" class="sidebar-overlay" style="display: none;"></div>
+
         <!-- Main Content Area -->
         <main class="main-content">
             <header class="main-header">
+                <button id="menuToggle" class="btn-icon menu-toggle" style="display: none;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
                 <div class="header-left">
                     <h2 id="pageTitle">Dashboard</h2>
                     <p id="pageSubtitle">Visão geral do sistema de escalas</p>
@@ -139,7 +166,7 @@
                 <!-- Dashboard View -->
                 <div id="dashboardView" class="view active">
                     <div class="stats-grid">
-                        <div class="stat-card">
+                        <div class="stat-card" data-navigate="employees" style="cursor: pointer;">
                             <div class="stat-icon"
                                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -154,7 +181,7 @@
                             </div>
                         </div>
 
-                        <div class="stat-card">
+                        <div class="stat-card" data-navigate="shifts" style="cursor: pointer;">
                             <div class="stat-icon"
                                 style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -168,7 +195,7 @@
                             </div>
                         </div>
 
-                        <div class="stat-card">
+                        <div class="stat-card" data-navigate="oncall" style="cursor: pointer;">
                             <div class="stat-icon"
                                 style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -182,7 +209,7 @@
                             </div>
                         </div>
 
-                        <div class="stat-card">
+                        <div class="stat-card" data-navigate="holidays" style="cursor: pointer;">
                             <div class="stat-icon"
                                 style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -397,7 +424,187 @@
     <div id="modalContainer"></div>
 
     <script src="import-data.js"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Main App -->
     <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = document.getElementById('app');
+            const loadingScreen = document.getElementById('loadingScreen');
+            const sidebar = document.querySelector('.sidebar');
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const navItems = document.querySelectorAll('.nav-item');
+            const views = document.querySelectorAll('.view');
+            const pageTitle = document.getElementById('pageTitle');
+            const pageSubtitle = document.getElementById('pageSubtitle');
+
+            // Mapeamento de views para títulos e subtítulos
+            const viewConfig = {
+                dashboard: { title: 'Dashboard', subtitle: 'Visão geral do sistema de escalas' },
+                calendar: { title: 'Escala do Mês', subtitle: 'Visualizar e gerenciar a escala mensal' },
+                employees: { title: 'Funcionários', subtitle: 'Gerenciar funcionários cadastrados' },
+                shifts: { title: 'Turnos', subtitle: 'Configurar turnos de trabalho' },
+                oncall: { title: 'Plantões', subtitle: 'Gerenciar escalas de plantão' },
+                holidays: { title: 'Feriados', subtitle: 'Gerenciar feriados e datas especiais' },
+                settings: { title: 'Configurações', subtitle: 'Importar/Exportar dados do sistema' }
+            };
+
+            // 1. Loading Screen Logic
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                app.style.display = 'grid';
+            }, 1000);
+
+            // 2. Sidebar Toggle Logic (Mobile)
+            const closeSidebar = () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('active');
+            };
+
+            const openSidebar = () => {
+                sidebar.classList.add('open');
+                sidebarOverlay.classList.add('active');
+            };
+
+            if (menuToggle) {
+                menuToggle.addEventListener('click', openSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', closeSidebar);
+            }
+
+            // 3. Navigation Logic
+            const updateView = (viewName) => {
+                const config = viewConfig[viewName] || { title: viewName, subtitle: '' };
+                
+                // Update active nav item
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('data-view') === viewName) {
+                        item.classList.add('active');
+                    }
+                });
+
+                // Update content view
+                views.forEach(view => {
+                    view.classList.remove('active');
+                    if (view.id === viewName + 'View') {
+                        view.classList.add('active');
+                    }
+                });
+
+                // Update header
+                pageTitle.textContent = config.title;
+                pageSubtitle.textContent = config.subtitle;
+
+                // Close sidebar on mobile after navigation
+                if (window.innerWidth <= 1024) {
+                    closeSidebar();
+                }
+            };
+
+            // Nav items click
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const viewName = item.getAttribute('data-view');
+                    updateView(viewName);
+                });
+            });
+
+            // 4. Stat Cards Click (Dashboard navigation)
+            const statCards = document.querySelectorAll('.stat-card[data-navigate]');
+            statCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const viewName = card.getAttribute('data-navigate');
+                    updateView(viewName);
+                });
+            });
+
+            // Initial load (assuming dashboard is default)
+            updateView('dashboard');
+
+            // 5. Month Selector Logic
+            const currentMonthSpan = document.getElementById('currentMonth');
+            const prevMonthButton = document.getElementById('prevMonth');
+            const nextMonthButton = document.getElementById('nextMonth');
+            const generateScheduleButton = document.getElementById('generateSchedule');
+
+            let currentMonth = new Date(2025, 11); // Dezembro 2025 (mês 11)
+
+            const updateMonthDisplay = () => {
+                const options = { month: 'long', year: 'numeric' };
+                currentMonthSpan.textContent = currentMonth.toLocaleDateString('pt-BR', options).replace(/\b\w/g, l => l.toUpperCase());
+            };
+
+            const changeMonth = (offset) => {
+                currentMonth.setMonth(currentMonth.getMonth() + offset);
+                updateMonthDisplay();
+                // Aqui você adicionaria a lógica para recarregar os dados da escala
+            };
+
+            if (prevMonthButton) {
+                prevMonthButton.addEventListener('click', () => changeMonth(-1));
+            }
+
+            if (nextMonthButton) {
+                nextMonthButton.addEventListener('click', () => changeMonth(1));
+            }
+
+            updateMonthDisplay(); // Initial month display
+
+            if (generateScheduleButton) {
+                generateScheduleButton.addEventListener('click', () => {
+                    alert('Gerar Escala para ' + currentMonthSpan.textContent);
+                    // Lógica para gerar a escala
+                });
+            }
+        });
+
+        // ============================================
+        // THEME TOGGLE - Executado DEPOIS de tudo
+        // ============================================
+        (function() {
+            // Aplicar tema salvo imediatamente
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light-mode') {
+                document.body.classList.add('light-mode');
+                document.documentElement.classList.add('light-mode');
+            }
+
+            // Aguardar tudo carregar e então configurar o botão
+            window.addEventListener('load', function() {
+                // Pequeno delay para garantir que outros scripts já executaram
+                setTimeout(function() {
+                    const themeBtn = document.getElementById('themeToggle');
+                    
+                    if (themeBtn) {
+                        // Remover todos os listeners antigos clonando o elemento
+                        const newBtn = themeBtn.cloneNode(true);
+                        themeBtn.parentNode.replaceChild(newBtn, themeBtn);
+                        
+                        // Adicionar novo listener
+                        newBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            document.body.classList.toggle('light-mode');
+                            document.documentElement.classList.toggle('light-mode');
+                            const isLight = document.body.classList.contains('light-mode');
+                            localStorage.setItem('theme', isLight ? 'light-mode' : 'dark-mode');
+                            
+                            console.log('✅ Tema alterado para:', isLight ? 'CLARO' : 'ESCURO');
+                        });
+                        
+                        console.log('✅ Botão de tema configurado com sucesso!');
+                    }
+                }, 100);
+            });
+        })();
+    </script>
 </body>
 
 </html>

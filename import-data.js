@@ -1,190 +1,146 @@
 // ===========================
-// DADOS EXTRAÍDOS DA ESCALA DE NOVEMBRO/2025
+// DADOS BASE - NOVEMBRO 2025
 // ===========================
 
 const COMPLETE_IMPORT_DATA = {
-    // Turnos com cores e horários ATUALIZADOS
+    // Turnos
     shifts: [
-        // Turnos de Trabalho
-        { id: 't1', name: 'T1', time: '07:00 às 16:00', color: '#00b0f0' },      // Azul Claro
-        { id: 't2', name: 'T2', time: '13:00 às 22:00', color: '#00b050' },      // Verde
-        { id: 't3', name: 'T3', time: '08:30 às 18:18', color: '#ff6b9d' },      // Rosa (antigo FC)
-        { id: 't4', name: 'T4', time: '00:00 às 09:00', color: '#483d8b' },      // Azul Escuro (Madrugada)
-        { id: 't5', name: 'T5', time: '08:00 às 16:00', color: '#87ceeb' },      // Azul Céu
-        { id: 't6', name: 'T6', time: '09:00 às 18:00', color: '#ff0000' },      // Vermelho (antigo RED)
-        { id: 't7', name: 'T7', time: '22:00 às 07:00', color: '#9966ff' },      // Roxo (antigo T3)
-        { id: 't8', name: 'T8', time: '08:00 às 17:00', color: '#ffa500' },      // Laranja
-        { id: 't9', name: 'T9', time: '10:00 às 19:00', color: '#ff00ff' },      // Pink (antigo PINK)
-        { id: 't10', name: 'T10', time: '14:00 às 22:00', color: '#663399' },    // Roxo Escuro (antigo PURPLE)
+        { id: 't1', name: 'T1', time: '07:00 às 16:00', color: '#00b0f0' },
+        { id: 't2', name: 'T2', time: '13:00 às 22:00', color: '#00b050' },
+        { id: 't3', name: 'T3', time: '08:30 às 18:18', color: '#ff6b9d' },
+        { id: 't4', name: 'T4', time: '00:00 às 09:00', color: '#483d8b' },
+        { id: 't5', name: 'T5', time: '08:00 às 16:00', color: '#87ceeb' },
+        { id: 't6', name: 'T6', time: '09:00 às 18:00', color: '#ff0000' },
+        { id: 't7', name: 'T7', time: '22:00 às 07:00', color: '#9966ff' },
+        { id: 't8', name: 'T8', time: '08:00 às 17:00', color: '#ffa500' },
+        { id: 't9', name: 'T9', time: '10:00 às 19:00', color: '#ff00ff' },
+        { id: 't10', name: 'T10', time: '14:00 às 22:00', color: '#663399' },
+        { id: 't11', name: 'T11', time: '11:00 às 20:00', color: '#a52a2a' },
+        { id: 't12', name: 'T12', time: '12:00 às 21:00', color: '#20b2aa' },
+        { id: '12x36', name: '12x36', time: '12h Trabalho / 36h Folga', color: '#708090' },
 
-        // Status / Ausências
-        { id: 'f', name: 'F', time: 'Folga', color: '#ffeb3b' },                 // Amarelo
-        { id: 'bh', name: 'BH', time: 'Banco de Horas', color: '#2d2d4a' },      // Escuro
-        { id: 'fe', name: 'FE', time: 'Férias', color: '#00ced1' },              // Turquesa
-        { id: 'ft', name: 'FT', time: 'Falta', color: '#8b0000' },               // Vermelho Escuro
-        { id: 'at', name: 'AT', time: 'Atestado', color: '#ffd700' }             // Dourado
+        { id: 'f', name: 'F', time: 'Folga', color: '#ffeb3b' },
+        { id: 'bh', name: 'BH', time: 'Banco de Horas', color: '#2d2d4a' },
+        { id: 'fe', name: 'FE', time: 'Férias', color: '#00ced1' },
+        { id: 'ft', name: 'FT', time: 'Falta', color: '#8b0000' },
+        { id: 'at', name: 'AT', time: 'Atestado', color: '#ffd700' }
     ],
 
-    // Funcionários atualizados com os NOVOS códigos de turno
+    // Funcionários
     employees: [
         // SUPORTE N1
-        { name: 'Gustavo Soares', sector: 'SUPORTE N1', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
-        { name: 'Gabriel Agostinho', sector: 'SUPORTE N1', shiftId: 't7', pattern: 'F-F-T7-T7-T7-T7-T7' }, // Era T3 (noite) -> T7
-        { name: 'Brenno Benuto', sector: 'SUPORTE N1', shiftId: 't7', pattern: 'F-F-T7-T7-T7-T7-T7' },     // Era T3 (noite) -> T7
-        { name: 'Gabriella Piedra', sector: 'SUPORTE N1', shiftId: 't7', pattern: 'F-F-T7-T7-T7-T7-T7' },  // Era T3 (noite) -> T7
-        { name: 'Douglas Medeiros', sector: 'SUPORTE N1', shiftId: 't6', pattern: 'F-F-T6-T6-T6-T6-T6' },  // Era RED -> T6
-        { name: 'Gabriel Amoedo', sector: 'SUPORTE N1', shiftId: 't7', pattern: 'F-F-T7-T7-T7-T7-T7' },    // Era T3 (noite) -> T7
-        { name: 'Vinicius Kiyoshi', sector: 'SUPORTE N1', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
-        { name: 'Hélio Batista', sector: 'SUPORTE N1', shiftId: 't1', pattern: 'F-T1-T1-T1-T1-T1-T1' },
-        { name: 'Carlos Santos', sector: 'SUPORTE N1', shiftId: 't2', pattern: 'T2-F-T2-T2-T2-T2-T2' },
-        { name: 'Felipe Thacio', sector: 'SUPORTE N1', shiftId: 't2', pattern: 'F-F-T2-T2-T2-T2-T2' },
-        { name: 'Lucas Torres', sector: 'SUPORTE N1', shiftId: 't7', pattern: 'F-F-T7-T7-T7-T7-T7' },      // Era T3 (noite) -> T7
-        { name: 'Luiz Silva', sector: 'SUPORTE N1', shiftId: 't7', pattern: 'F-F-T7-T7-T7-T7-T7' },        // Era T3 (noite) -> T7
-        { name: 'Gabriel Sebastião', sector: 'SUPORTE N1', shiftId: 't7', pattern: 'F-F-T7-T7-T7-T7-T7' }, // Era T3 (noite) -> T7
-        { name: 'Riquelme Sousa', sector: 'SUPORTE N1', shiftId: 't2', pattern: 'T2-F-T2-T2-T2-T2-F' },
-        { name: 'Joyce Martins', sector: 'SUPORTE N1', shiftId: 't8', pattern: 'F-F-T8-T8-T8-T8-T8' },     // Era FE (trabalho) -> T8 (aprox)
+        { name: 'Gustavo Soares', sector: 'SUPORTE N1', shiftId: 't1', weekendRule: 'alternating' },
+        { name: 'Gabriel Agostinho', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating' },
+        { name: 'Brenno Benuto', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating' },
+        { name: 'Gabriella Piedra', sector: 'SUPORTE N1', shiftId: 't1', weekendRule: 'alternating_sat' },
+        { name: 'Douglas Medeiros', sector: 'SUPORTE N1', shiftId: 't4', weekendRule: 'alternating' },
+        { name: 'Gabriel Amoedo', sector: 'SUPORTE N1', shiftId: 't7', weekendRule: 'alternating' },
+        { name: 'Vinicius Kiyoshi', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating' },
+        { name: 'Hélio Batista', sector: 'SUPORTE N1', shiftId: 't8', weekendRule: 'alternating' },
+        { name: 'Carlos Santos', sector: 'SUPORTE N1', shiftId: 't2', weekendRule: 'alternating' },
+        { name: 'Felipe Thacio', sector: 'SUPORTE N1', shiftId: 't1', weekendRule: 'alternating' },
+        { name: 'Lucas Torres', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating' },
+        { name: 'Luiz Silva', sector: 'SUPORTE N1', shiftId: 't3', weekendRule: 'alternating' },
+        { name: 'Gabriel Sebastião', sector: 'SUPORTE N1', shiftId: 't3', weekendRule: 'alternating' },
+        { name: 'Riquelme Sousa', sector: 'SUPORTE N1', shiftId: 't3', weekendRule: 'alternating' },
+        { name: 'Joyce Martins', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'off' },
 
         // SUPORTE N2
-        { name: 'Caio Anelli', sector: 'SUPORTE N2', shiftId: 'f', pattern: 'F-F-F-F-F-F-F' },
-        { name: 'Christian Campos', sector: 'SUPORTE N2', shiftId: 't3', pattern: 'F-F-T3-T3-T3-T3-T3' },  // Era FC -> T3
-        { name: 'Alex Padilha', sector: 'SUPORTE N2', shiftId: 't1', pattern: 'T1-F-T1-T1-T1-T1-T1' },
-        { name: 'A K', sector: 'SUPORTE N2', shiftId: 't8', pattern: 'F-F-T8-T8-T8-T8-T8' },               // Era FE -> T8
+        { name: 'Caio Anelli', sector: 'SUPORTE N2', shiftId: '12x36', weekendRule: '12x36' },
+        { name: 'Christian Campos', sector: 'SUPORTE N2', shiftId: 't3', weekendRule: 'alternating' },
+        { name: 'Alex Padilha', sector: 'SUPORTE N2', shiftId: 't8', weekendRule: 'alternating' },
+        { name: 'A K', sector: 'SUPORTE N2', shiftId: 't3', weekendRule: 'alternating' },
 
-        // ATIVAÇÃO REDE
-        { name: 'Reginaldo Pires', sector: 'ATIVAÇÃO REDE', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
-        { name: 'Murilo Stenico', sector: 'ATIVAÇÃO REDE', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
-        { name: 'Henrique Xavier', sector: 'ATIVAÇÃO REDE', shiftId: 't7', pattern: 'F-F-T7-T7-T7-T7-T7' }, // Era T3 -> T7
-        { name: 'D D', sector: 'ATIVAÇÃO REDE', shiftId: 't7', pattern: 'F-F-T7-T7-T7-T7-T7' },             // Era T3 -> T7
+        // OUTROS
+        { name: 'Reginaldo Pires', sector: 'ATIVAÇÃO REDE', shiftId: 't3', weekendRule: 'off' },
+        { name: 'Murilo Stenico', sector: 'ATIVAÇÃO REDE', shiftId: 't3', weekendRule: 'off' },
+        { name: 'Henrique Xavier', sector: 'ATIVAÇÃO REDE', shiftId: 't3', weekendRule: 'off' },
+        { name: 'D D', sector: 'ATIVAÇÃO REDE', shiftId: 't6', weekendRule: 'off' },
 
-        // TELEFONIA
-        { name: 'Alexandre Rozendo', sector: 'TELEFONIA', shiftId: 't7', pattern: 'F-F-T7-T7-T7-T7-T7' },   // Era T3 -> T7
-        { name: 'Fabricio Amorim', sector: 'TELEFONIA', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
-        { name: 'Melchisedek Silva', sector: 'TELEFONIA', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
-        { name: 'Jose Armando Viana Silva', sector: 'TELEFONIA', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
+        { name: 'Alexandre Rozendo', sector: 'TELEFONIA', shiftId: 't6', weekendRule: 'off' },
+        { name: 'Fabricio Amorim', sector: 'TELEFONIA', shiftId: 't8', weekendRule: 'off' },
+        { name: 'Melchisedek Silva', sector: 'TELEFONIA', shiftId: 't3', weekendRule: 'off' },
+        { name: 'Jose Armando Viana Silva', sector: 'TELEFONIA', shiftId: 't3', weekendRule: 'off' },
 
-        // REDES
-        { name: 'Alberto Iraci', sector: 'REDES', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
-        { name: 'Romário Morais', sector: 'REDES', shiftId: 't2', pattern: 'F-F-T2-T2-T2-T2-T2' },
-        { name: 'Mikeias Mendes', sector: 'REDES', shiftId: 't8', pattern: 'F-F-T8-T8-T8-T8-T8' },         // Era FE -> T8
-        { name: 'Rafael Batista', sector: 'REDES', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
+        { name: 'Alberto Iraci', sector: 'REDES', shiftId: 't1', weekendRule: 'off' },
+        { name: 'Romário Morais', sector: 'REDES', shiftId: 't2', weekendRule: 'off' },
+        { name: 'Mikeias Mendes', sector: 'REDES', shiftId: 't8', weekendRule: 'off' },
 
-        // REDES N3
-        { name: 'A R', sector: 'REDES N3', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
+        { name: 'A R', sector: 'REDES N3', shiftId: 't1', weekendRule: 'off' },
+        { name: 'Rafael Batista', sector: 'REDES N3', shiftId: 't1', weekendRule: 'off' },
 
-        // NT TECH
-        { name: 'Diogo Paiva', sector: 'NT TECH', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
-        { name: 'Lucas Travisan', sector: 'NT TECH', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
-        { name: 'Vinicius Augusto', sector: 'NT TECH', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' },
-        { name: 'Vinicius Silva', sector: 'NT TECH', shiftId: 't1', pattern: 'F-F-T1-T1-T1-T1-T1' }
+        { name: 'Diogo Paiva', sector: 'NT TECH', shiftId: 't1', weekendRule: 'off' },
+        { name: 'Lucas Travisan', sector: 'NT TECH', shiftId: 't1', weekendRule: 'off' },
+        { name: 'Vinicius Augusto', sector: 'NT TECH', shiftId: 't1', weekendRule: 'off' },
+        { name: 'Vinicius Silva', sector: 'NT TECH', shiftId: 't1', weekendRule: 'off' }
     ],
 
-    // Plantões com rotações semanais
+    // Tabela de Férias
+    vacations: [
+        { employeeName: 'Joyce Martins', start: '2025-11-01', end: '2025-12-07' },
+        { employeeName: 'Douglas Medeiros', start: '2026-03-01', end: '2026-03-20' }
+    ],
+
+    // Plantões (Data Base: 03/11/2025)
     oncalls: [
         {
             name: 'PLANTÃO NOC',
-            rotation: [
-                'Gabriel Correa',
-                'Alex Padilha',
-                'Gustavo Soares',
-                'Lucas Travisan'
-            ]
+            startDate: '2025-11-03',
+            rotation: ['Gabriel Correa', 'Alex Padilha', 'Gustavo Soares', 'Lucas Travisan']
         },
         {
             name: 'PLANTÃO N3',
-            rotation: [
-                'Rafael Batista',
-                'A R'
-            ]
+            startDate: '2025-11-03',
+            rotation: ['Rafael Batista', 'A R']
         },
         {
             name: 'PLANTÃO VOZ',
-            rotation: [
-                'Melchisedek Silva',
-                'Jose Armando Viana Silva',
-                'Fabricio Amorim',
-                'Diogo Paiva'
-            ]
+            startDate: '2025-11-03',
+            rotation: ['Melchisedek Silva', 'Jose Armando Viana Silva', 'Fabricio Amorim', 'Diogo Paiva']
         },
         {
             name: 'PLANTÃO TECH',
-            rotation: [
-                'Lucas Travisan',
-                'Vinicius Augusto',
-                'Vinicius Silva'
-            ]
+            startDate: '2025-11-03',
+            rotation: ['Lucas Travisan', 'Vinicius Augusto', 'Vinicius Silva']
         }
     ],
 
-    // Feriados de Dezembro 2025
     holidays: [
-        { date: '2025-12-25', name: 'Natal', type: 'Nacional' }
+        { date: '2025-12-25', name: 'Natal', type: 'Nacional' },
+        { date: '2026-01-01', name: 'Ano Novo', type: 'Nacional' }
     ]
 };
 
 // ===========================
-// FUNÇÃO DE IMPORTAÇÃO AUTOMÁTICA
+// IMPORTAÇÃO
 // ===========================
-
 function importCompleteData(silent = false) {
-    console.log('🔄 Iniciando importação completa dos dados...');
-
-    // Importar turnos
+    console.log('🔄 Importando dados...');
     AppState.shifts = COMPLETE_IMPORT_DATA.shifts;
+    AppState.employees = COMPLETE_IMPORT_DATA.employees.map(emp => ({ ...emp, id: generateId() }));
+    AppState.oncalls = COMPLETE_IMPORT_DATA.oncalls.map(oncall => ({ ...oncall, id: generateId() }));
+    AppState.vacations = (COMPLETE_IMPORT_DATA.vacations || []).map(v => ({ ...v, id: generateId() }));
 
-    // Importar funcionários com IDs únicos
-    AppState.employees = COMPLETE_IMPORT_DATA.employees.map(emp => ({
-        ...emp,
-        id: generateId()
-    }));
-
-    // Importar plantões com IDs únicos
-    AppState.oncalls = COMPLETE_IMPORT_DATA.oncalls.map(oncall => ({
-        ...oncall,
-        id: generateId()
-    }));
-
-    // Manter feriados existentes e adicionar novos
     const existingHolidays = AppState.holidays || [];
-    COMPLETE_IMPORT_DATA.holidays.forEach(newHoliday => {
-        if (!existingHolidays.some(h => h.date === newHoliday.date)) {
-            existingHolidays.push(newHoliday);
-        }
+    COMPLETE_IMPORT_DATA.holidays.forEach(h => {
+        if (!existingHolidays.some(eh => eh.date === h.date)) existingHolidays.push(h);
     });
     AppState.holidays = existingHolidays;
 
-    // Atualizar setores
-    const uniqueSectors = [...new Set(AppState.employees.map(e => e.sector))];
-    AppState.sectors = uniqueSectors;
-
-    // Salvar tudo
+    AppState.sectors = [...new Set(AppState.employees.map(e => e.sector))];
     saveAppData();
 
-    console.log('✨ Importação concluída com sucesso!');
-
-    // Atualizar interface
-    updateStats();
+    if (!silent) alert('✅ Dados importados! (Férias, 12x36 e Plantões atualizados)');
     if (typeof renderDashboard === 'function') renderDashboard();
-
-    // Notificar usuário apenas se não for silencioso
-    if (!silent) {
-        alert(`✅ Dados importados com sucesso!\n\n` +
-            `- ${AppState.employees.length} funcionários\n` +
-            `- ${AppState.shifts.length} turnos\n` +
-            `- ${AppState.oncalls.length} plantões\n` +
-            `- ${AppState.sectors.length} setores\n\n` +
-            `Agora você pode gerar a escala de Dezembro!`);
-    }
-
     return true;
 }
 
 // ===========================
-// GERADOR INTELIGENTE DE ESCALA
+// GERADOR DE ESCALA INTELIGENTE V2
 // ===========================
-
 function generateSmartSchedule() {
     if (AppState.employees.length === 0) {
-        alert('❌ Nenhum funcionário cadastrado. Execute a importação primeiro!');
+        alert('❌ Importe os dados primeiro!');
         return;
     }
 
@@ -193,78 +149,111 @@ function generateSmartSchedule() {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
 
-    console.log(`🗓️ Gerando escala para ${monthKey}...`);
-
     const schedule = {};
 
-    AppState.employees.forEach(emp => {
+    AppState.employees.forEach((emp, index) => {
         schedule[emp.id] = {};
 
-        // Analisar padrão de trabalho
-        const pattern = emp.pattern ? emp.pattern.split('-') : [emp.shiftId];
-        let patternIndex = 0;
-
         for (let day = 1; day <= daysInMonth; day++) {
             const date = new Date(year, month, day);
+            const dateStr = date.toISOString().split('T')[0];
             const dayKey = String(day).padStart(2, '0');
+            const dayOfWeek = date.getDay();
             const isHoliday = isDateHoliday(date);
-            const dayOfWeek = date.getDay(); // 0 = Domingo, 6 = Sábado
 
-            // Aplicar padrão cíclico
-            let shiftForDay = pattern[patternIndex % pattern.length].toLowerCase();
+            // 1. REGRA SUPREMA: FÉRIAS
+            const isOnVacation = AppState.vacations.some(v => {
+                return v.employeeName === emp.name && dateStr >= v.start && dateStr <= v.end;
+            });
 
-            // Se for feriado e não é folga, marcar como BH
-            if (isHoliday && shiftForDay !== 'f') {
-                shiftForDay = 'bh';
+            if (isOnVacation) {
+                schedule[emp.id][dayKey] = 'fe';
+                continue;
             }
 
-            schedule[emp.id][dayKey] = shiftForDay;
-            patternIndex++;
+            // 2. REGRA 12x36 (Caio Anelli)
+            if (emp.shiftId === '12x36') {
+                const baseDate = new Date('2025-11-01');
+                const diffTime = date.getTime() - baseDate.getTime();
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                // CORREÇÃO: Invertido para que 27/11 seja Folga
+                if (diffDays % 2 !== 0) {
+                    schedule[emp.id][dayKey] = 't9'; // Trabalha
+                } else {
+                    schedule[emp.id][dayKey] = 'f'; // Folga
+                }
+                continue;
+            }
+
+            // 3. REGRA PADRÃO
+            let shift = 'f';
+
+            if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                shift = emp.shiftId;
+                if (isHoliday) shift = 'bh';
+            } else {
+                if (emp.weekendRule === 'alternating') {
+                    const weekNum = getWeekNumber(date);
+                    const isWorkingWeekend = (weekNum + index) % 2 === 0;
+                    if (isWorkingWeekend) {
+                        if (dayOfWeek === 6) shift = 't10';
+                        if (dayOfWeek === 0) shift = 'f';
+                    }
+                } else if (emp.weekendRule === 'alternating_sat') {
+                    const weekNum = getWeekNumber(date);
+                    if (dayOfWeek === 6 && weekNum % 2 === 0) shift = 't10';
+                }
+            }
+
+            schedule[emp.id][dayKey] = shift;
         }
     });
 
-    // Aplicar plantões semanais
+    // 4. PLANTÕES (Visualização)
+    const onCallSchedule = {}; // { '01': { 'NOC': 'ID' } }
+
     AppState.oncalls.forEach(oncall => {
-        const rotationLength = oncall.rotation.length;
-        let weekNumber = 0;
+        const startDate = new Date(oncall.startDate);
+        const rotation = oncall.rotation;
 
         for (let day = 1; day <= daysInMonth; day++) {
-            const date = new Date(year, month, day);
-            const dayOfWeek = date.getDay();
+            const currentDate = new Date(year, month, day);
+            const dateStr = String(day).padStart(2, '0');
 
-            // Nova semana começa na segunda-feira (day = 1)
-            if (dayOfWeek === 1 && day > 1) {
-                weekNumber++;
-            }
+            const diffTime = currentDate.getTime() - startDate.getTime();
+            const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
 
-            const personOnCall = oncall.rotation[weekNumber % rotationLength];
+            if (diffWeeks < 0) continue;
 
-            // Encontrar funcionário e marcar plantão (sobrepor turno normal)
-            const employee = AppState.employees.find(e => e.name === personOnCall);
-            if (employee && schedule[employee.id]) {
-                const dayKey = String(day).padStart(2, '0');
-                // Adicionar marcador de plantão (pode customizar aqui)
-                // Por enquanto, mantém o turno normal mas poderíamos adicionar indicador
+            const personName = rotation[diffWeeks % rotation.length];
+            const emp = AppState.employees.find(e => e.name === personName);
+
+            if (emp) {
+                if (!onCallSchedule[dateStr]) onCallSchedule[dateStr] = [];
+                onCallSchedule[dateStr].push({ empId: emp.id, type: oncall.name });
             }
         }
     });
+
+    if (!AppState.scheduleMeta) AppState.scheduleMeta = {};
+    AppState.scheduleMeta[monthKey] = onCallSchedule;
 
     AppState.schedule[monthKey] = schedule;
     saveAppData();
 
-    console.log('✅ Escala gerada com sucesso!');
+    alert(`✅ Escala de ${monthKey} gerada com sucesso!\n\nPlantões e 12x36 calculados.`);
 
-    alert(`✅ Escala de ${monthKey} gerada!\n\n` +
-        `Total de dias: ${daysInMonth}\n` +
-        `Funcionários escalados: ${AppState.employees.length}\n\n` +
-        `Visualize na aba "Escala do Mês"`);
-
-    // Mudar para visualização de calendário
-    if (AppState.currentView !== 'calendar') {
-        switchView('calendar');
-    } else {
-        renderCalendar();
-    }
+    if (AppState.currentView !== 'calendar') switchView('calendar');
+    else renderCalendar();
 }
 
-console.log('📦 import-data.js carregado - Use importCompleteData() para importar todos os dados');
+function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return weekNo;
+}
+
+console.log('📦 import-data.js carregado');
