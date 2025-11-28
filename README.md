@@ -45,69 +45,6 @@ Rotação semanal:
 #### **4. PLANTÃO TECH**
 Rotação semanal:
 - Semana 1: Lucas Travisan
-- Semana 2: Vinicius Augusto
-- Semana 3: Vinicius Silva
-- (repete...)
-
----
-
-## 👥 Lista Completa de Funcionários
-
-### **SUPORTE N1 (15)**
-1. Gustavo Soares - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-2. Gabriel Agostinho - T3 - Padrão: `F-F-T3-T3-T3-T3-T3`
-3. Brenno Benuto - T3 - Padrão: `F-F-T3-T3-T3-T3-T3`
-4. Gabriella Piedra - T3 - Padrão: `F-F-T3-T3-T3-T3-T3`
-5. Douglas Medeiros - RED - Padrão: `F-F-RED-RED-RED-RED-RED`
-6. Gabriel Amoedo - T3 - Padrão: `F-F-T3-T3-T3-T3-T3`
-7. Vinicius Kiyoshi - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-8. Hélio Batista - T1 - Padrão: `F-T1-T1-T1-T1-T1-T1`
-9. Carlos Santos - T2 - Padrão: `T2-F-T2-T2-T2-T2-T2`
-10. Felipe Thacio - T2 - Padrão: `F-F-T2-T2-T2-T2-T2`
-11. Lucas Torres - T3 - Padrão: `F-F-T3-T3-T3-T3-T3`
-12. Luiz Silva - T3 - Padrão: `F-F-T3-T3-T3-T3-T3`
-13. Gabriel Sebastião - T3 - Padrão: `F-F-T3-T3-T3-T3-T3`
-14. Riquelme Sousa - T2 - Padrão: `T2-F-T2-T2-T2-T2-F`
-15. Joyce Martins - FE - Padrão: `F-F-FE-FE-FE-FE-FE`
-
-### **SUPORTE N2 (4)**
-1. Caio Anelli - F - Padrão: `F-F-F-F-F-F-F`
-2. Christian Campos - FC - Padrão: `F-F-FC-FC-FC-FC-FC`
-3. Alex Padilha - T1 - Padrão: `T1-F-T1-T1-T1-T1-T1`
-4. A K - FE - Padrão: `F-F-FE-FE-FE-FE-FE`
-
-### **ATIVAÇÃO REDE (4)**
-1. Reginaldo Pires - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-2. Murilo Stenico - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-3. Henrique Xavier - T3 - Padrão: `F-F-T3-T3-T3-T3-T3`
-4. D D - T3 - Padrão: `F-F-T3-T3-T3-T3-T3`
-
-### **TELEFONIA (4)**
-1. Alexandre Rozendo - T3 - Padrão: `F-F-T3-T3-T3-T3-T3`
-2. Fabricio Amorim - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-3. Melchisedek Silva - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-4. Jose Armando Viana Silva - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-
-### **REDES (4)**
-1. Alberto Iraci - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-2. Romário Morais - T2 - Padrão: `F-F-T2-T2-T2-T2-T2`
-3. Mikeias Mendes - FE - Padrão: `F-F-FE-FE-FE-FE-FE`
-4. Rafael Batista - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-
-### **REDES N3 (1)**
-1. A R - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-
-### **NT TECH (4)**
-1. Diogo Paiva - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-2. Lucas Travisan - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-3. Vinicius Augusto - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-4. Vinicius Silva - T1 - Padrão: `F-F-T1-T1-T1-T1-T1`
-
----
-
-## 🎯 Como Funciona
-
-### **Geração Automática de Escalas:**
 
 O sistema aplica **padrões de trabalho cíclicos** para cada funcionário:
 
@@ -281,4 +218,4 @@ Sistema desenvolvido para uso interno. Todos os direitos reservados.
 
 ---
 
-**Desenvolvido com ❤️ para otimizar a gestão de escalas de trabalho.**
+**Desenvolvido  para otimizar a gestão de escalas de trabalho.**
