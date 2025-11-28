@@ -1,38 +1,3 @@
-# 📅 EscalaApp - Sistema de Gestão Automática de Escalas
-
-Sistema web completo para geração e gestão automática de escalas de trabalho, desenvolvido em HTML/CSS/JavaScript puro (sem necessidade de servidor).
-
----
-
-## 🚀 Início Rápido
-
-### **Como Usar:**
-
-1. **Abra o arquivo:** `index.html` em qualquer navegador moderno (Chrome, Firefox, Edge)
-2. **Importe os dados:** Vá em "Configurações" → "Importar Dados Completos"
-3. **Gere a escala:** Selecione o mês desejado → "Gerar Escala"
-4. **Visualize:** Clique em "Escala do Mês" para ver o calendário completo
-
-### **Primeira Execução:**
-
-```bash
-# Simplesmente abra o arquivo no navegador:
-# Windows: clique duplo em index.html
-# Ou arraste o arquivo para o navegador
-```
-
-**Não precisa instalar nada!** Funciona 100% offline.
-
----
-
-## 📊 Dados Configurados
-
-### **Total de Funcionários: 39**
-
-#### **Por Setor:**
-- **SUPORTE N1**: 15 funcionários
-- **SUPORTE N2**: 4 funcionários
-- **ATIVAÇÃO REDE**: 4 funcionários
 - **TELEFONIA**: 4 funcionários
 - **REDES**: 4 funcionários
 - **REDES N3**: 1 funcionário (A R)
@@ -186,26 +151,6 @@ Em feriados nacionais, o sistema automaticamente converte turnos de trabalho em 
 ├── styles.css          # Estilos e tema dark mode
 ├── app.js             # Lógica principal da aplicação Web
 ├── import-data.js     # Dados de importação + gerador inteligente
-├── escala_flex.py     # Versão Python/Streamlit (Protótipo)
-├── escala.db          # Banco de dados SQLite (Uso do Python)
-└── README.md          # Este arquivo (documentação)
-```
-
-### **Armazenamento:**
-
-Os dados são salvos automaticamente no **localStorage** do navegador:
-- ✅ Funciona offline
-- ✅ Persiste após fechar o navegador
-- ⚠️ Específico para cada navegador/computador
-- 💾 Backup manual: Use "Exportar Dados" nas Configurações
-
----
-
-## 📱 Funcionalidades
-
-### **✅ Implementadas:**
-
-1. **Dashboard**
    - Estatísticas em tempo real
    - Visão geral de setores
    - Próximos feriados
@@ -270,25 +215,6 @@ Os dados são salvos automaticamente no **localStorage** do navegador:
 
 ### **Compatibilidade:**
 - ✅ Chrome 90+
-- ✅ Firefox 88+
-- ✅ Edge 90+
-- ✅ Safari 14+
-
-### **Requisitos:**
-- Nenhum! Apenas um navegador moderno
-- JavaScript habilitado
-- LocalStorage habilitado
-
-### **Performance:**
-- Carregamento: < 2s
-- Geração de escala mensal: < 1s (para 39 funcionários)
-- Uso de memória: ~5-10MB
-
----
-
-## 💾 Backup e Recuperação
-
-### **Fazer Backup:**
 1. Vá em "Configurações"
 2. Clique em "Exportar Dados"
 3. Salve o arquivo JSON gerado
@@ -301,21 +227,6 @@ Os dados são salvos automaticamente no **localStorage** do navegador:
 ### **Recomendação:**
 - Faça backup mensal dos dados
 - Guarde em local seguro (Google Drive, Dropbox, etc.)
-
----
-
-## 🐛 Troubleshooting
-
-### **"Dados não estão salvando"**
-- Verifique se localStorage está habilitado
-- Não use modo privado/anônimo do navegador
-- Limpe o cache se necessário
-
-### **"A escala não está gerando"**
-- Confirme que há funcionários cadastrados
-- Verifique se os turnos estão configurados
-- Tente fazer nova importação de dados
-
 ### **"As cores não aparecem"**
 - Recarregue a página (F5)
 - Limpe o cache do navegador
