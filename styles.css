@@ -9,16 +9,22 @@
 
 :root {
     /* NetTurbo Brand Colors - Dark Mode (Default) */
-    --primary: #BFD83E; /* Lime Green */
+    --primary: #BFD83E;
+    /* Lime Green */
     --primary-dark: #a8c235;
-    --secondary: #BFD83E; /* Lime Green */
-    --accent: #BFD83E; /* Lime Green */
+    --secondary: #BFD83E;
+    /* Lime Green */
+    --accent: #BFD83E;
+    /* Lime Green */
 
     /* Neutrals */
-    --bg-primary: #0f0f23; /* Azul escuro profundo */
-    --bg-secondary: #1a1a2e; /* Sidebar/Header */
+    --bg-primary: #0f0f23;
+    /* Azul escuro profundo */
+    --bg-secondary: #1a1a2e;
+    /* Sidebar/Header */
     --bg-tertiary: #25253f;
-    --bg-card: #1e1e38; /* Cards/Containers */
+    --bg-card: #1e1e38;
+    /* Cards/Containers */
 
     /* Text */
     --text-primary: #ffffff;
@@ -314,7 +320,8 @@ body {
     padding: var(--spacing-xl);
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
-    position: sticky; /* Adicionado para fixar o cabeçalho */
+    position: sticky;
+    /* Adicionado para fixar o cabeçalho */
     top: 0;
     z-index: 10;
 }
@@ -662,10 +669,12 @@ body {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    overflow: hidden; /* Mantém o border-radius */
+    overflow: hidden;
+    /* Mantém o border-radius */
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 200px); /* Altura máxima do container */
+    max-height: calc(100vh - 200px);
+    /* Altura máxima do container */
 }
 
 .calendar-header {
@@ -716,7 +725,8 @@ body {
 .schedule-table {
     /* Removido width: 100% para permitir que o conteúdo defina a largura mínima */
     /* width: 100%; */
-    min-width: 1200px; /* Valor arbitrário para forçar a rolagem horizontal */
+    min-width: 1200px;
+    /* Valor arbitrário para forçar a rolagem horizontal */
     border-collapse: collapse;
     background: var(--bg-card);
 }
@@ -747,7 +757,8 @@ body {
     position: sticky;
     left: 0;
     background: var(--bg-tertiary);
-    z-index: 25; /* Maior que thead (20) para ficar no canto superior esquerdo */
+    z-index: 25;
+    /* Maior que thead (20) para ficar no canto superior esquerdo */
     text-align: left;
     padding: var(--spacing-sm) var(--spacing-md);
     min-width: 120px;
@@ -776,7 +787,8 @@ body {
     position: sticky;
     left: 0;
     background: var(--bg-card);
-    z-index: 10; /* Abaixo do thead (20) mas acima das células normais */
+    z-index: 10;
+    /* Abaixo do thead (20) mas acima das células normais */
     text-align: left;
     padding: var(--spacing-sm) var(--spacing-md);
 }
@@ -790,30 +802,41 @@ body {
 }
 
 @media (max-width: 768px) {
-    .schedule-table th.sticky-col {
-        min-width: 80px; /* Reduz a largura da primeira coluna */
+
+    /* Coluna 1 (Setor): Deixa de ser fixa para economizar espaço */
+    .schedule-table th.sticky-col:nth-child(1),
+    .schedule-table td.sticky-col:nth-child(1) {
+        position: static;
+        min-width: 70px;
+        z-index: auto;
     }
 
+    /* Coluna 2 (Funcionário): Única fixa na esquerda */
     .schedule-table th.sticky-col:nth-child(2) {
-        left: 80px; /* Ajusta a posição da segunda coluna */
-        min-width: 120px; /* Reduz a largura da segunda coluna */
-    }
-
-    .schedule-table th.sticky-col:nth-child(3) {
-        left: 200px; /* Ajusta a posição da terceira coluna */
-        min-width: 80px; /* Reduz a largura da terceira coluna */
-    }
-
-    .schedule-table td.sticky-col {
-        min-width: 80px;
+        left: 0;
+        min-width: 140px;
+        /* Garante leitura do nome */
+        z-index: 35;
+        /* Acima das outras células */
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        /* Sombra para destacar */
+        border-right: 1px solid var(--border-color);
     }
 
     .schedule-table td.sticky-col:nth-child(2) {
-        left: 80px;
+        left: 0;
+        min-width: 140px;
+        z-index: 15;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        border-right: 1px solid var(--border-color);
     }
 
+    /* Coluna 3 (Horário): Deixa de ser fixa */
+    .schedule-table th.sticky-col:nth-child(3),
     .schedule-table td.sticky-col:nth-child(3) {
-        left: 200px;
+        position: static;
+        min-width: 60px;
+        z-index: auto;
     }
 }
 
@@ -1196,8 +1219,10 @@ body {
     }
 
     .menu-toggle {
-        display: flex !important; /* Força a exibição do botão de menu */
-        order: -1; /* Coloca o botão à esquerda */
+        display: flex !important;
+        /* Força a exibição do botão de menu */
+        order: -1;
+        /* Coloca o botão à esquerda */
         margin-right: var(--spacing-md);
     }
 
@@ -1216,7 +1241,8 @@ body {
 
     .header-left {
         width: 100%;
-        order: 1; /* Move o título para baixo do botão e do seletor de mês */
+        order: 1;
+        /* Move o título para baixo do botão e do seletor de mês */
     }
 
     .header-right {

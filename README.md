@@ -173,7 +173,7 @@ Em feriados nacionais, o sistema automaticamente converte turnos de trabalho em 
 
 ## 📞 Contato de Emergência
 
-**OBS: SEMPRE LIGAR - (19) 3515-7210**
+**OBS: WPP - (19) 3410-0173**
 
 ---
 
