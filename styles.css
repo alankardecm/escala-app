@@ -1282,3 +1282,111 @@ body {
         height: 20px;
     }
 }
+
+/* ===========================
+   LOGIN SCREEN
+   =========================== */
+.login-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.login-card {
+    background: var(--bg-card);
+    padding: 2.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid var(--border-color);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.logo-large {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.login-header h2 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.login-header p {
+    color: var(--text-secondary);
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+/* ===========================
+   READ-ONLY MODE
+   =========================== */
+body.read-only-mode .btn-primary:not(#logoutBtn):not(#exportReportsBtn),
+body.read-only-mode .btn-icon,
+body.read-only-mode #saveChanges,
+body.read-only-mode #generateSchedule,
+body.read-only-mode #addEmployee,
+body.read-only-mode #addShift,
+body.read-only-mode #addOncall,
+body.read-only-mode #addHoliday,
+body.read-only-mode #addVacationBtn,
+body.read-only-mode #cleanTestUsers,
+body.read-only-mode #clearData,
+body.read-only-mode #quickImport {
+    display: none !important;
+}
+
+body.read-only-mode td {
+    pointer-events: none !important;
+}
+
+/* Re-enable pointer events for navigation */
+body.read-only-mode .nav-item,
+body.read-only-mode #prevMonth,
+body.read-only-mode #nextMonth {
+    pointer-events: auto !important;
+}
+
+body.read-only-mode .nav-item[data-view="reports"] {
+    display: none !important;
+}
