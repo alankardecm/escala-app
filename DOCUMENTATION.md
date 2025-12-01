@@ -1,107 +1,121 @@
-# 📘 Documentação do Sistema EscalaApp
+# 📘 Documentação Completa - EscalaApp
 
 ## 🌟 Visão Geral
-O **EscalaApp** é uma aplicação web progressiva (PWA) desenvolvida para automatizar e gerenciar a escala de trabalho da equipe de TI/NOC. O sistema permite a visualização mensal, gestão de funcionários, turnos, plantões e feriados, com geração automática de escalas baseada em regras inteligentes.
+O **EscalaApp** é uma aplicação web progressiva (PWA) desenvolvida para gerenciar escalas de trabalho, plantões e férias de equipes de TI/NOC. O sistema oferece controle de acesso baseado em funções (Admin/Visualizador), geração automática de escalas com regras complexas (12x36, FDS alternado) e exportação de relatórios.
+
+**URL de Produção:** [https://escala-app-three.vercel.app/](https://escala-app-three.vercel.app/)
 
 ---
 
-## 🚀 Funcionalidades Principais
+## 🚀 Funcionalidades
 
-### 1. Dashboard
-- **Visão Geral:** Cards com totais de funcionários, turnos, plantões e feriados.
-- **Resumo de Setores:** Contagem rápida de colaboradores por equipe.
-- **Próximos Feriados:** Lista dos feriados mais próximos.
+### 1. Autenticação e Segurança
+*   **Login/Cadastro:** Sistema integrado com Supabase Auth.
+*   **Roles (Funções):**
+    *   **Admin:** Acesso total (Editar, Salvar, Gerar Escala, Configurações). Código de cadastro: `escala2025`.
+    *   **Visualizador:** Acesso somente leitura (Vê escalas e relatórios, mas não edita).
+*   **Confirmação de E-mail:** Obrigatória para novos cadastros.
 
-### 2. Escala do Mês (Calendário)
-- **Visualização Visual:** Tabela estilo Excel com cores para cada turno.
-- **Responsividade:** Layout adaptado para Desktop e Mobile (com colunas fixas inteligentes).
-- **Edição Rápida:** Clique em qualquer célula para alterar o turno manualmente.
-- **Legenda:** Mostra todos os códigos de turno ativos.
+### 2. Escala Mensal (Calendário)
+*   **Visualização:** Tabela dinâmica com cores por tipo de turno.
+*   **Edição (Admin):** Clique em qualquer célula para alterar o turno manualmente.
+*   **Geração Automática:** Algoritmo que respeita:
+    1.  Férias (Prioridade máxima).
+    2.  Escala 12x36 (Cálculo automático).
+    3.  Regras de Fim de Semana (Alternado, Sábado Alternado, Folga Fixa).
+    4.  Feriados (Vira Banco de Horas `BH` se trabalhado).
+*   **Persistência:** As escalas geradas devem ser **SALVAS** para ficarem visíveis para outros usuários.
 
-### 3. Gestão de Funcionários
-- Cadastro completo com Nome, Setor, Turno Padrão e Regra de Fim de Semana.
-- **Programação de Férias:** Sistema de agendamento de férias que bloqueia automaticamente a escala do funcionário no período.
+### 3. Gestão de Plantões (On-Call)
+*   **Rotação Automática:** Define quem está de plantão a cada semana.
+*   **Visualização:** Linha dedicada no topo da escala mensal.
+*   **Cálculo Dinâmico:** Baseado na data de início e ordem da equipe.
 
-### 4. Automação (Gerador Inteligente V2)
-O sistema utiliza um algoritmo de prioridades para gerar a escala:
-1.  **Prioridade 1 - Férias:** Se o funcionário estiver de férias, o dia é marcado como `FE` (Férias).
-2.  **Prioridade 2 - Escala 12x36:** Calcula automaticamente os dias de trabalho e folga baseados em uma data pivô (01/11/2025).
-3.  **Prioridade 3 - Regras de Fim de Semana:**
-    *   `alternating`: Trabalha um fim de semana sim, outro não.
-    *   `alternating_sat`: Trabalha sábados alternados (Domingo é sempre folga).
-    *   `off`: Folga todo sábado e domingo.
-4.  **Prioridade 4 - Feriados:** Se for dia de trabalho e cair em feriado, vira `BH` (Banco de Horas).
-
-### 5. Plantões (On-Call)
-- Sistema de rotação semanal automática.
-- Suporta múltiplas filas de plantão (NOC, N3, Voz, Tech).
-- Visualização dedicada no topo da escala mensal.
+### 4. Relatórios
+*   **Exportação Excel:** Gera um arquivo `.csv` detalhado com:
+    *   Horas trabalhadas em FDS e Feriados.
+    *   Horas de sobreaviso (Plantão) calculadas por regra (NOC, Voz, Tech).
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Stack Tecnológica
 
-*   **Frontend:** HTML5, CSS3 (Variáveis CSS, Grid, Flexbox), JavaScript (ES6+).
-*   **Armazenamento:** Supabase (Banco de Dados em Nuvem) + LocalStorage (Cache de tema).
-*   **PWA (Progressive Web App):** Funciona como aplicativo nativo no celular (Android/iOS), com ícone e tela cheia.
-*   **Hospedagem:** Vercel (Frontend).
-
----
-
-## 📱 Guia de Uso Mobile (PWA)
-
-O sistema foi otimizado para celulares:
-1.  **Instalação:** Abra no navegador (Chrome/Safari) e selecione "Adicionar à Tela Inicial".
-2.  **Visualização:**
-    *   A coluna **Funcionário** é fixa na esquerda.
-    *   Role horizontalmente para ver os dias do mês.
-    *   O cabeçalho (dias) acompanha a rolagem vertical.
+*   **Frontend:** HTML5, CSS3 (Vanilla), JavaScript (ES6+).
+*   **Backend/Database:** Supabase (PostgreSQL + Auth).
+*   **Hospedagem:** Vercel.
 
 ---
 
-## ⚙️ Regras de Negócio (Detalhado)
+## 📂 Estrutura do Projeto
 
-### Tipos de Escala de Fim de Semana
-| Código Interno | Descrição | Comportamento |
-| :--- | :--- | :--- |
-| `alternating` | FDS Alternado | Trabalha Sáb e Dom sim, Sáb e Dom não. |
-| `alternating_sat` | Sábado Alternado | Trabalha Sáb sim, Sáb não. Domingo sempre folga. |
-| `off` | Folga Fixa | Sábado e Domingo sempre folga. |
-| `12x36` | Plantão 12h | Trabalha 1 dia, folga 1 dia (independente de ser FDS). |
-
-### Códigos de Turno Padrão
-*   `T1`: 07:00 às 16:00
-*   `T2`: 13:00 às 22:00
-*   `T3`: 22:00 às 07:00 (Noturno)
-*   `T4` a `T12`: Variações de horário.
-*   `F`: Folga
-*   `BH`: Banco de Horas (Feriado trabalhado)
-*   `FE`: Férias
+*   `index.html`: Estrutura única da aplicação (SPA - Single Page Application).
+*   `styles.css`: Estilização completa, incluindo temas Claro/Escuro e responsividade mobile.
+*   `app.js`: **Núcleo da aplicação.** Contém:
+    *   Configuração do Supabase.
+    *   Lógica de Autenticação (`signUp`, `signIn`, `applyPermissions`).
+    *   Gerenciamento de Estado (`AppState`).
+    *   Regras de Negócio (Geração de escala, cálculo de plantão).
+    *   Manipulação do DOM e Eventos.
+*   `manifest.json` & `sw.js`: Configurações para instalação como App (PWA).
 
 ---
 
-## 🔄 Como Atualizar o Sistema
+## 🗄️ Banco de Dados (Supabase)
 
-O projeto está hospedado no GitHub e conectado à Vercel.
+O sistema utiliza as seguintes tabelas no Supabase:
 
-1.  **Faça as alterações** no código localmente (VS Code).
-2.  **Salve** os arquivos.
-3.  **Envie para o GitHub** (via terminal):
+1.  **`employees`**: Cadastro de funcionários.
+    *   `id`, `name`, `sector`, `shift_id` (turno padrão), `weekend_rule`.
+2.  **`shifts`**: Definição dos turnos.
+    *   `id` (ex: T1), `name`, `time` (ex: 07:00-16:00), `color`.
+3.  **`oncalls`**: Configuração dos plantões.
+    *   `name`, `start_date`, `rotation` (array de nomes).
+4.  **`holidays`**: Feriados nacionais.
+    *   `date`, `name`, `type`.
+5.  **`monthly_schedules`**: Armazena as escalas geradas.
+    *   `month_key` (ex: '2025-12'), `data` (JSON com a escala de cada funcionário).
+6.  **`vacations`**: Períodos de férias.
+    *   `employee_name`, `start_date`, `end_date`.
+
+---
+
+## ⚙️ Como Rodar Localmente
+
+1.  **Clone o repositório:**
     ```bash
-    git add .
-    git commit -m "Descrição da mudança"
-    git push
+    git clone https://github.com/alankardecm/escala-app.git
     ```
-4.  **Aguarde:** A Vercel detecta o `git push` e atualiza o site automaticamente em cerca de 1-2 minutos.
-5.  **No Celular:** Feche e abra o app para receber a nova versão.
+2.  **Abra o arquivo `index.html`** no seu navegador.
+    *   *Nota:* Para o Login funcionar perfeitamente localmente, recomenda-se usar uma extensão como "Live Server" no VS Code para servir os arquivos via `http://127.0.0.1:5500` em vez de `file://`.
 
 ---
 
-## 📂 Estrutura de Pastas
+## 🔄 Manutenção e Atualização
 
-*   `index.html`: Estrutura da página.
-*   `styles.css`: Estilos, cores (Dark Mode) e regras responsivas.
-*   `app.js`: Lógica da interface, renderização e eventos.
-*   `import-data.js`: Lógica pesada de geração de escala ("Cérebro" do sistema) e dados iniciais.
-*   `service-worker.js`: Configuração do PWA (Cache e funcionamento offline).
-*   `manifest.json`: Configuração do ícone e nome do app para instalação no celular.
+### Adicionar um Novo Turno
+1.  No Supabase, adicione uma linha na tabela `shifts`.
+2.  No arquivo `styles.css`, adicione a variável de cor correspondente (opcional, se quiser cor específica).
+
+### Alterar Regra de Plantão
+1.  No Supabase, edite a tabela `oncalls`.
+2.  Altere o array `rotation` para mudar a ordem dos plantonistas.
+3.  Altere `start_date` se precisar reiniciar o ciclo.
+
+### Atualizar Código
+1.  Edite os arquivos locais.
+2.  Commit e Push para o GitHub.
+3.  A Vercel fará o deploy automático.
+
+```bash
+git add .
+git commit -m "Melhoria X"
+git push
+```
+
+---
+
+## 🐛 Solução de Problemas Comuns
+
+*   **"Não consigo logar":** Verifique se confirmou o e-mail. Verifique se a senha tem 6+ caracteres.
+*   **"Escala aparece vazia":** O Admin precisa clicar em **"Gerar Escala"** e depois **"Salvar"**. Se não salvar, os dados não vão para o banco.
+*   **"Botão Cadastrar não funciona":** Limpe o cache do navegador (Ctrl+F5) para garantir que o script mais recente foi carregado.
