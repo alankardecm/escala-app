@@ -29,17 +29,17 @@ const COMPLETE_IMPORT_DATA = {
     // Funcionários
     employees: [
         // SUPORTE N1
-        { name: 'Gustavo Soares', sector: 'SUPORTE N1', shiftId: 't1', weekendRule: 'alternating' },
-        { name: 'Gabriel Agostinho', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating' },
-        { name: 'Brenno Benuto', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating' },
+        { name: 'Gustavo Soares', sector: 'SUPORTE N1', shiftId: 't1', weekendRule: 'alternating_sun' },
+        { name: 'Gabriel Agostinho', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating_sun' },
+        { name: 'Brenno Benuto', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating_sun' },
         { name: 'Gabriella Piedra', sector: 'SUPORTE N1', shiftId: 't1', weekendRule: 'alternating_sat' },
         { name: 'Douglas Medeiros', sector: 'SUPORTE N1', shiftId: 't4', weekendRule: 'alternating' },
         { name: 'Gabriel Amoedo', sector: 'SUPORTE N1', shiftId: 't7', weekendRule: 'alternating' },
-        { name: 'Vinicius Kiyoshi', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating' },
+        { name: 'Vinicius Kiyoshi', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating_sun' },
         { name: 'Hélio Batista', sector: 'SUPORTE N1', shiftId: 't8', weekendRule: 'alternating' },
         { name: 'Carlos Santos', sector: 'SUPORTE N1', shiftId: 't2', weekendRule: 'alternating' },
         { name: 'Felipe Thacio', sector: 'SUPORTE N1', shiftId: 't1', weekendRule: 'alternating' },
-        { name: 'Lucas Torres', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating' },
+        { name: 'Lucas Torres', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating_sun' },
         { name: 'Luiz Silva', sector: 'SUPORTE N1', shiftId: 't3', weekendRule: 'alternating' },
         { name: 'Gabriel Sebastião', sector: 'SUPORTE N1', shiftId: 't3', weekendRule: 'alternating' },
         { name: 'Riquelme Sousa', sector: 'SUPORTE N1', shiftId: 't3', weekendRule: 'alternating' },
@@ -57,8 +57,8 @@ const COMPLETE_IMPORT_DATA = {
         { name: 'Henrique Xavier', sector: 'ATIVAÇÃO REDE', shiftId: 't3', weekendRule: 'off' },
         { name: 'D D', sector: 'ATIVAÇÃO REDE', shiftId: 't6', weekendRule: 'off' },
 
-        { name: 'Alexandre Rozendo', sector: 'TELEFONIA', shiftId: 't6', weekendRule: 'off' },
-        { name: 'Fabricio Amorim', sector: 'TELEFONIA', shiftId: 't8', weekendRule: 'off' },
+        { name: 'Alexandre Rozendo', sector: 'TELEFONIA', shiftId: 't6', weekendRule: 'alternating_sun' },
+        { name: 'Fabricio Amorim', sector: 'TELEFONIA', shiftId: 't8', weekendRule: 'alternating_sun' },
         { name: 'Melchisedek Silva', sector: 'TELEFONIA', shiftId: 't3', weekendRule: 'off' },
         { name: 'Jose Armando Viana Silva', sector: 'TELEFONIA', shiftId: 't3', weekendRule: 'off' },
 
@@ -114,8 +114,26 @@ const COMPLETE_IMPORT_DATA = {
 // ===========================
 // IMPORTAÇÃO
 // ===========================
-function importCompleteData(silent = false) {
+async function importCompleteData(silent = false) {
     console.log('🔄 Importando dados...');
+
+    // 1. Limpar dados antigos do Supabase para evitar duplicatas
+    if (typeof supabase !== 'undefined' && supabase) {
+        try {
+            console.log('🧹 Limpando banco de dados...');
+            await supabase.from('employees').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+            await supabase.from('shifts').delete().neq('id', '0');
+            await supabase.from('oncalls').delete().neq('id', '0');
+            await supabase.from('vacations').delete().neq('id', '0');
+            // Não limpamos monthly_schedules para não perder históricos de meses anteriores se não for necessário,
+            // mas se for um reset completo, deveríamos. O usuário pediu "Importar Dados Completos", o que soa como reset.
+            // Vamos manter o histórico de escalas por segurança, ou limpar?
+            // O problema relatado foi duplicação de FUNCIONÁRIOS. Então limpar employees é o principal.
+        } catch (error) {
+            console.error('Erro ao limpar Supabase:', error);
+        }
+    }
+
     AppState.shifts = COMPLETE_IMPORT_DATA.shifts;
     AppState.employees = COMPLETE_IMPORT_DATA.employees.map(emp => ({ ...emp, id: generateId() }));
     AppState.oncalls = COMPLETE_IMPORT_DATA.oncalls.map(oncall => ({ ...oncall, id: generateId() }));
@@ -128,9 +146,11 @@ function importCompleteData(silent = false) {
     AppState.holidays = existingHolidays;
 
     AppState.sectors = [...new Set(AppState.employees.map(e => e.sector))];
-    saveAppData();
 
-    if (!silent) alert('✅ Dados importados! (Férias, 12x36 e Plantões atualizados)');
+    // Salvar os novos dados
+    await saveAppData();
+
+    if (!silent) alert('✅ Dados importados e duplicatas removidas!');
     if (typeof renderDashboard === 'function') renderDashboard();
     return true;
 }

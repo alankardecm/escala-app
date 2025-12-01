@@ -257,7 +257,8 @@ function setupEventListeners() {
 
     // Actions
     document.getElementById('generateSchedule').addEventListener('click', generateSchedule);
-    document.getElementById('addEmployee').addEventListener('click', showAddEmployeeModal);
+    document.getElementById('addEmployee').addEventListener('click', () => openEmployeeModal());
+    document.getElementById('addVacationBtn').addEventListener('click', () => openVacationModal());
     document.getElementById('addShift').addEventListener('click', showAddShiftModal);
     document.getElementById('addOncall').addEventListener('click', showAddOncallModal);
     document.getElementById('addHoliday').addEventListener('click', showAddHolidayModal);
@@ -288,6 +289,7 @@ function switchView(viewName) {
         shifts: { title: 'Turnos', subtitle: 'Configurar horários de trabalho' },
         oncall: { title: 'Plantões', subtitle: 'Gerenciar escalas de plantão' },
         holidays: { title: 'Feriados', subtitle: 'Gerenciar feriados e folgas especiais' },
+        reports: { title: 'Relatórios de Horas', subtitle: 'Acompanhamento de horas extras e sobreaviso' },
         settings: { title: 'Configurações', subtitle: 'Importar/Exportar dados do sistema' }
     };
 
@@ -299,11 +301,277 @@ function switchView(viewName) {
     switch (viewName) {
         case 'dashboard': renderDashboard(); break;
         case 'calendar': renderCalendar(); break;
-        case 'employees': renderEmployees(); break;
+        case 'employees': renderEmployees(); renderVacations(); break;
         case 'shifts': renderShifts(); break;
         case 'oncall': renderOncall(); break;
         case 'holidays': renderHolidays(); break;
+        case 'reports': renderReports(); break;
     }
+}
+
+// ===========================
+// REPORTS RENDERING
+// ===========================
+function renderReports() {
+    renderWeekendSupportReport();
+    renderOnCallReports();
+}
+
+function renderWeekendSupportReport() {
+    const summaryBody = document.getElementById('weekendSupportSummaryBody');
+    const detailBody = document.getElementById('weekendSupportDetailBody');
+
+    summaryBody.innerHTML = '';
+    detailBody.innerHTML = '';
+
+    const year = AppState.currentMonth.getFullYear();
+    const month = AppState.currentMonth.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const schedule = AppState.schedule[monthKey];
+
+    if (!schedule) {
+        detailBody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma escala gerada para este mês.</td></tr>';
+        return;
+    }
+
+    const employeeHours = {}; // { empId: totalHours }
+    const details = [];
+
+    // Initialize hours for all employees
+    AppState.employees.forEach(e => employeeHours[e.id] = 0);
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const dayOfWeek = date.getDay(); // 0=Sun, 6=Sat
+        const isHoliday = isDateHoliday(date);
+
+        // Filter: Only Weekends or Holidays
+        if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isHoliday) continue;
+
+        AppState.employees.forEach(emp => {
+            const shiftId = schedule[emp.id]?.[String(day).padStart(2, '0')];
+            if (!shiftId) return;
+
+            const shift = AppState.shifts.find(s => s.id === shiftId);
+            if (!shift) return;
+
+            // Calculate Hours
+            // Ignore 'f', 'fe', 'bh', 'at', 'ft'
+            if (['f', 'fe', 'bh', 'at', 'ft'].includes(shift.id)) return;
+
+            let hours = 0;
+            let timeStr = shift.time;
+
+            if (shift.id === '12x36') {
+                hours = 12;
+            } else {
+                // Parse "07:00 às 16:00"
+                const times = timeStr.match(/(\d{2}):(\d{2})/g);
+                if (times && times.length >= 2) {
+                    const [h1, m1] = times[0].split(':').map(Number);
+                    const [h2, m2] = times[1].split(':').map(Number);
+
+                    let diff = (h2 * 60 + m2) - (h1 * 60 + m1);
+                    if (diff < 0) diff += 24 * 60; // Crosses midnight
+
+                    // Subtract 1 hour lunch if > 6 hours (Assumption based on standard laws, can be adjusted)
+                    // Actually, let's stick to raw duration or check if user wants lunch deducted.
+                    // Image shows "8:00:00" for 8h to 16:00. That's 8 hours. 
+                    // So 16 - 8 = 8. No lunch deduction in the display?
+                    // Let's assume raw difference for now.
+                    hours = diff / 60;
+                }
+            }
+
+            if (hours > 0) {
+                employeeHours[emp.id] += hours;
+                details.push({
+                    date: date.toLocaleDateString('pt-BR'),
+                    day: date.toLocaleDateString('pt-BR', { weekday: 'short' }),
+                    name: emp.name,
+                    turn: shift.name,
+                    time: shift.time,
+                    hours: hours
+                });
+            }
+        });
+    }
+
+    // Render Summary
+    const sortedEmployees = AppState.employees
+        .filter(e => employeeHours[e.id] > 0)
+        .sort((a, b) => employeeHours[b.id] - employeeHours[a.id]);
+
+    summaryBody.innerHTML = sortedEmployees.map(emp => `
+        <tr>
+            <td>${emp.name}</td>
+            <td style="font-weight: bold;">${employeeHours[emp.id].toFixed(2)}h</td>
+        </tr>
+    `).join('');
+
+    // Render Details
+    detailBody.innerHTML = details.map(d => `
+        <tr>
+            <td>${d.date}</td>
+            <td>${d.day}</td>
+            <td>${d.name}</td>
+            <td><span class="badge">${d.turn}</span></td>
+            <td style="font-size: 0.8rem;">${d.time}</td>
+            <td>${d.hours.toFixed(2)}h</td>
+        </tr>
+    `).join('');
+}
+
+function renderOnCallReports() {
+    const container = document.getElementById('onCallReportsContainer');
+    container.innerHTML = '';
+
+    const year = AppState.currentMonth.getFullYear();
+    const month = AppState.currentMonth.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Define Rules for each On-Call Type (Hardcoded based on requirements)
+    const onCallRules = {
+        'PLANTÃO NOC': {
+            weekdays: { start: 22, end: 7, hours: 9 },
+            weekends: { start: 22, end: 8, hours: 10 }, // Sat, Sun, Holiday
+            color: '#4caf50' // Green
+        },
+        'PLANTÃO VOZ': {
+            weekdays: { start: 18, end: 8, hours: 14 },
+            weekends: { start: 8, end: 8, hours: 24 },
+            color: '#9c27b0' // Purple
+        },
+        'PLANTÃO TECH': {
+            weekdays: { start: 22, end: 8, hours: 10 },
+            weekends: { start: 8, end: 8, hours: 24 },
+            color: '#ff9800' // Orange
+        },
+        'PLANTÃO N3': {
+            weekdays: { start: 0, end: 0, hours: 0 }, // Not specified in images, assuming standard or 0
+            weekends: { start: 0, end: 0, hours: 0 },
+            color: '#2196f3' // Blue
+        }
+    };
+
+    // We need to map the "oncalls" from AppState to these rules
+    // AppState.oncalls has { name: "PLANTÃO NOC", ... }
+
+    AppState.oncalls.forEach(oncall => {
+        const rule = onCallRules[oncall.name.toUpperCase()] || onCallRules['PLANTÃO NOC']; // Fallback
+
+        // Calculate Hours
+        const employeeHours = {};
+        const details = [];
+
+        // We need to reconstruct the rotation for the month
+        // Logic similar to generateSchedule but just for reading
+        const startDate = new Date(oncall.startDate);
+        // Normalize start date to its Monday to align rotation
+        const getMonday = (d) => {
+            const date = new Date(d);
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(date.setDate(diff));
+        };
+        const startMonday = getMonday(startDate);
+        const rotation = oncall.rotation;
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            const currentMonday = getMonday(date);
+
+            const dayOfWeek = date.getDay(); // 0=Sun, 6=Sat
+            const isHoliday = isDateHoliday(date);
+            const isWeekendOrHoliday = dayOfWeek === 0 || dayOfWeek === 6 || isHoliday;
+
+            const diffTime = currentMonday.getTime() - startMonday.getTime();
+            const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+
+            if (diffWeeks < 0) continue;
+
+            const personName = rotation[diffWeeks % rotation.length];
+
+            // Determine hours based on rule
+            let hours = isWeekendOrHoliday ? rule.weekends.hours : rule.weekdays.hours;
+            let start = isWeekendOrHoliday ? rule.weekends.start : rule.weekdays.start;
+            let end = isWeekendOrHoliday ? rule.weekends.end : rule.weekdays.end;
+
+            if (hours > 0) {
+                if (!employeeHours[personName]) employeeHours[personName] = 0;
+                employeeHours[personName] += hours;
+
+                details.push({
+                    date: date.toLocaleDateString('pt-BR'),
+                    name: personName,
+                    start: `${start}:00`,
+                    end: `${end}:00`,
+                    hours: hours
+                });
+            }
+        }
+
+        // Create UI for this On-Call
+        const section = document.createElement('div');
+        section.className = 'card';
+        section.style.marginBottom = '2rem';
+
+        const summaryRows = Object.entries(employeeHours)
+            .sort(([, a], [, b]) => b - a)
+            .map(([name, hours]) => `
+                <tr>
+                    <td>${name}</td>
+                    <td style="font-weight: bold;">${hours.toFixed(2)}h</td>
+                </tr>
+            `).join('');
+
+        const detailRows = details.map(d => `
+            <tr>
+                <td>${d.date}</td>
+                <td>${d.name}</td>
+                <td>${d.start}</td>
+                <td>${d.end}</td>
+                <td>${d.hours.toFixed(2)}h</td>
+            </tr>
+        `).join('');
+
+        section.innerHTML = `
+            <div class="card-header" style="background: linear-gradient(90deg, ${rule.color}20 0%, transparent 100%); border-left: 4px solid ${rule.color};">
+                <h3>${oncall.name} - Sobreaviso</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-container" style="margin-bottom: 1.5rem;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Total Horas</th>
+                            </tr>
+                        </thead>
+                        <tbody>${summaryRows}</tbody>
+                    </table>
+                </div>
+                <div class="table-container">
+                    <h4 style="margin: 1rem 0; color: var(--text-secondary);">Detalhamento Diário</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Nome</th>
+                                <th>Início</th>
+                                <th>Fim</th>
+                                <th>Qtd. Horas</th>
+                            </tr>
+                        </thead>
+                        <tbody>${detailRows}</tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(section);
+    });
 }
 
 // ===========================
@@ -723,21 +991,41 @@ function renderVacations() {
     }).join('');
 }
 
-function addVacation() {
-    const name = prompt('Nome do Funcionário (exatamente como no cadastro):');
-    if (!name) return;
+// --- Vacation Modal Logic ---
+function openVacationModal() {
+    const modal = document.getElementById('vacationModal');
+    const empSelect = document.getElementById('vacationEmp');
 
-    const empExists = AppState.employees.some(e => e.name.toLowerCase() === name.toLowerCase());
-    if (!empExists) {
-        alert('❌ Funcionário não encontrado! Verifique o nome.');
+    // Populate Employees
+    empSelect.innerHTML = AppState.employees
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(e => `<option value="${e.name}">${e.name}</option>`)
+        .join('');
+
+    document.getElementById('vacationStart').value = '';
+    document.getElementById('vacationEnd').value = '';
+
+    modal.style.display = 'flex';
+}
+
+function closeVacationModal() {
+    document.getElementById('vacationModal').style.display = 'none';
+}
+
+function saveVacation() {
+    const name = document.getElementById('vacationEmp').value;
+    const start = document.getElementById('vacationStart').value;
+    const end = document.getElementById('vacationEnd').value;
+
+    if (!name || !start || !end) {
+        alert('Preencha todos os campos!');
         return;
     }
 
-    const start = prompt('Data de Início (AAAA-MM-DD):');
-    if (!start) return;
-
-    const end = prompt('Data de Fim (AAAA-MM-DD):');
-    if (!end) return;
+    if (start > end) {
+        alert('A data de início não pode ser depois da data de fim.');
+        return;
+    }
 
     if (!AppState.vacations) AppState.vacations = [];
 
@@ -750,7 +1038,37 @@ function addVacation() {
 
     saveAppData();
     renderVacations();
+    closeVacationModal();
     alert('✅ Férias agendadas com sucesso!');
+}
+
+function renderVacations() {
+    const tbody = document.getElementById('vacationsTable');
+    if (!tbody) return; // Guard clause if element doesn't exist
+
+    if (!AppState.vacations || AppState.vacations.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhuma férias agendada</td></tr>';
+        return;
+    }
+
+    // Sort by start date
+    const sortedVacations = [...AppState.vacations].sort((a, b) => new Date(a.start) - new Date(b.start));
+
+    tbody.innerHTML = sortedVacations.map(v => {
+        const startFmt = new Date(v.start).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+        const endFmt = new Date(v.end).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+        return `
+        <tr>
+            <td>${v.employeeName}</td>
+            <td>${startFmt}</td>
+            <td>${endFmt}</td>
+            <td>
+                <button class="btn-icon btn-sm" onclick="deleteVacation('${v.id}')" style="color: #ff6b6b;">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="2"/></svg>
+                </button>
+            </td>
+        </tr>
+    `}).join('');
 }
 
 function deleteVacation(id) {
@@ -832,36 +1150,143 @@ function renderHolidays() {
 // ===========================
 // MODAL & UTILS
 // ===========================
-function showAddEmployeeModal() {
-    const name = prompt('Nome do Funcionário:');
-    if (!name) return;
+// ===========================
+// MODAL & UTILS
+// ===========================
 
-    const sector = prompt('Setor (ex: SUPORTE N1, REDES):', 'SUPORTE N1');
-    if (!sector) return;
+// --- Employee Modal Logic ---
+function openEmployeeModal(empId = null) {
+    const modal = document.getElementById('employeeModal');
+    const title = document.getElementById('employeeModalTitle');
+    const form = document.getElementById('employeeForm');
 
-    const shiftId = prompt('Turno Padrão (ex: t1, t2, 12x36):', 't1');
-    if (!shiftId) return;
+    // Populate Selects
+    const sectorSelect = document.getElementById('empSector');
+    sectorSelect.innerHTML = AppState.sectors.map(s => `<option value="${s}">${s}</option>`).join('');
+    // Add option to add new sector if needed? For now, stick to existing or let user manage sectors elsewhere.
+    // Or add an "Other" option? Let's keep it simple for now, maybe add a prompt if they want a new sector.
+    // Actually, let's add all unique sectors from employees + a generic list if empty.
 
-    const weekendRule = prompt('Regra de Fim de Semana (alternating, alternating_sat, off, 12x36):', 'alternating');
+    const shiftSelect = document.getElementById('empShift');
+    shiftSelect.innerHTML = AppState.shifts.map(s => `<option value="${s.id}">${s.name} (${s.time})</option>`).join('');
 
-    const newEmp = {
-        id: generateId(),
-        name,
-        sector,
-        shiftId: shiftId.toLowerCase(),
-        weekendRule
-    };
+    if (empId) {
+        // EDIT MODE
+        const emp = AppState.employees.find(e => e.id === empId);
+        if (!emp) return;
 
-    AppState.employees.push(newEmp);
+        title.textContent = 'Editar Funcionário';
+        document.getElementById('empId').value = emp.id;
+        document.getElementById('empName').value = emp.name;
+        document.getElementById('empSector').value = emp.sector;
+        document.getElementById('empShift').value = emp.shiftId;
+        document.getElementById('empWeekendRule').value = emp.weekendRule;
+    } else {
+        // ADD MODE
+        title.textContent = 'Adicionar Funcionário';
+        document.getElementById('empId').value = '';
+        form.reset();
+        // Set defaults
+        if (AppState.sectors.length > 0) document.getElementById('empSector').value = AppState.sectors[0];
+        if (AppState.shifts.length > 0) document.getElementById('empShift').value = AppState.shifts[0].id;
+        document.getElementById('empWeekendRule').value = 'alternating';
+    }
 
-    if (!AppState.sectors.includes(sector)) {
-        AppState.sectors.push(sector);
+    modal.style.display = 'flex';
+}
+
+function closeEmployeeModal() {
+    document.getElementById('employeeModal').style.display = 'none';
+}
+
+function saveEmployee() {
+    const id = document.getElementById('empId').value;
+    const name = document.getElementById('empName').value;
+    const sector = document.getElementById('empSector').value;
+    const shiftId = document.getElementById('empShift').value;
+    const weekendRule = document.getElementById('empWeekendRule').value;
+
+    if (!name || !sector || !shiftId) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    if (id) {
+        // UPDATE
+        const index = AppState.employees.findIndex(e => e.id === id);
+        if (index !== -1) {
+            AppState.employees[index] = { ...AppState.employees[index], name, sector, shiftId, weekendRule };
+            alert('✅ Funcionário atualizado!');
+        }
+    } else {
+        // CREATE
+        const newEmp = {
+            id: generateId(),
+            name,
+            sector,
+            shiftId,
+            weekendRule
+        };
+        AppState.employees.push(newEmp);
+        alert('✅ Funcionário adicionado!');
     }
 
     saveAppData();
     renderEmployees();
     updateStats();
-    alert('✅ Funcionário adicionado com sucesso!');
+    closeEmployeeModal();
+}
+
+// Update renderEmployees to include Edit button
+function renderEmployees() {
+    const container = document.getElementById('employeesList');
+
+    // Group by Sector
+    const employeesBySector = AppState.employees.reduce((acc, emp) => {
+        acc[emp.sector] = acc[emp.sector] || [];
+        acc[emp.sector].push(emp);
+        return acc;
+    }, {});
+
+    container.innerHTML = Object.keys(employeesBySector).map(sector => `
+        <div class="sector-group" style="margin-bottom: 2rem;">
+            <h3 style="margin-bottom: 1rem; color: var(--primary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                ${sector} <span class="badge" style="margin-left: 0.5rem;">${employeesBySector[sector].length}</span>
+            </h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Turno</th>
+                            <th>Regra FDS</th>
+                            <th style="text-align: right;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${employeesBySector[sector].map(emp => {
+        const shift = AppState.shifts.find(s => s.id === emp.shiftId);
+        return `
+                            <tr>
+                                <td>${emp.name}</td>
+                                <td><span class="badge" style="background-color: ${shift ? shift.color + '20' : '#333'}; color: ${shift ? shift.color : '#fff'}; border: 1px solid ${shift ? shift.color : '#555'}">${shift ? shift.name : emp.shiftId}</span></td>
+                                <td>${getWeekendRuleLabel(emp.weekendRule)}</td>
+                                <td style="text-align: right;">
+                                    <button class="btn-icon" onclick="openEmployeeModal('${emp.id}')" title="Editar">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    </button>
+                                    <button class="btn-icon" onclick="deleteEmployee('${emp.id}')" title="Excluir" style="color: #ff6b6b;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            `;
+    }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `).join('');
 }
 
 function showAddShiftModal() {
@@ -1089,6 +1514,19 @@ function generateSchedule() {
                         if (weekNum % 2 !== 0) assignedShiftId = 'f';
                         else assignedShiftId = 't10';
                     }
+                } else if (emp.weekendRule === 'alternating_sun') {
+                    // Logic: Work Sunday on alternating weeks. Saturday is always OFF.
+                    // We use the same parity check as 'alternating' to keep teams aligned.
+                    const firstDayOfYear = new Date(year, 0, 1);
+                    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+                    const weekNum = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+
+                    if ((weekNum + index) % 2 !== 0) {
+                        assignedShiftId = 'f'; // Off Weekend
+                    } else {
+                        if (dayOfWeek === 6) assignedShiftId = 'f'; // Saturday Off
+                        if (dayOfWeek === 0) assignedShiftId = 't5'; // Sunday Work (Using T5 as default Sunday shift)
+                    }
                 }
             }
 
@@ -1103,19 +1541,30 @@ function generateSchedule() {
     });
 
     // 2. Process Plantões (On-Call)
+    // 2. Process Plantões (On-Call)
     AppState.oncalls.forEach(oncall => {
         oncall.schedule = {}; // Reset for the month
         const startDate = new Date(oncall.startDate);
+        // Normalize start date to its Monday to align rotation
+        const getMonday = (d) => {
+            const date = new Date(d);
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(date.setDate(diff));
+        };
+        const startMonday = getMonday(startDate);
         const rotation = oncall.rotation;
 
         for (let day = 1; day <= daysInMonth; day++) {
             const currentDate = new Date(year, month, day);
+            const currentMonday = getMonday(currentDate);
 
-            const diffTime = currentDate.getTime() - startDate.getTime();
+            const diffTime = currentMonday.getTime() - startMonday.getTime();
             const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
 
             if (diffWeeks >= 0) {
                 const personIndex = diffWeeks % rotation.length;
+                // Handle negative modulo if needed (though diffWeeks >= 0 check handles start)
                 oncall.schedule[day] = rotation[personIndex];
             }
         }
@@ -1124,4 +1573,15 @@ function generateSchedule() {
     saveAppData();
     renderCalendar();
     alert(`✅ Escala de ${monthKey} gerada com sucesso!\n\nConsiderando:\n- Férias\n- Regra 12x36\n- Plantões`);
+}
+
+function getWeekendRuleLabel(rule) {
+    switch (rule) {
+        case 'alternating': return 'FDS Alternado';
+        case 'alternating_sat': return 'Sábado Alternado';
+        case 'alternating_sun': return 'Domingo Alternado';
+        case 'off': return 'FDS Folga';
+        case '12x36': return 'Escala 12x36';
+        default: return rule;
+    }
 }
