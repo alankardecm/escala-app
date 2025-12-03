@@ -1045,7 +1045,7 @@ function renderCalendar() {
     AppState.oncalls.forEach(oncall => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td colspan="3" style="font-weight:600; color: var(--text-primary); text-align: left; padding-left: 1rem; border-right: 1px solid var(--border-color); background: var(--bg-card);">
+            <td colspan="3" class="sticky-col" style="font-weight:600; color: var(--text-primary); text-align: left; padding-left: 1rem; border-right: 1px solid var(--border-color); background: var(--bg-card); z-index: 15;">
                 ${oncall.name}
             </td>
             `;
