@@ -983,21 +983,11 @@ function renderUpcomingHolidays() {
 function renderCalendar() {
     const tableBody = document.getElementById('scheduleBody');
     const tableHeader = document.getElementById('calendarHeader');
-    const legendContainer = document.getElementById('shiftLegend');
 
     tableBody.innerHTML = '';
-    legendContainer.innerHTML = '';
 
-    // Render Legend
-    AppState.shifts.forEach(shift => {
-        const item = document.createElement('div');
-        item.className = 'legend-item';
-        item.innerHTML = `
-            <div class="legend-color" style="background-color: ${shift.color}40; border: 1px solid ${shift.color}"></div>
-            <span>${shift.name}</span>
-        `;
-        legendContainer.appendChild(item);
-    });
+
+
 
     const year = AppState.currentMonth.getFullYear();
     const month = AppState.currentMonth.getMonth();
@@ -1135,12 +1125,12 @@ function renderCalendar() {
         employeesBySector[sector].forEach(emp => {
             const tr = document.createElement('tr');
             const shift = AppState.shifts.find(s => s.id === emp.shiftId);
-            const shiftName = shift ? shift.name : emp.shiftId;
+            const shiftTime = shift ? shift.time : '';
 
             tr.innerHTML = `
             <td class="sticky-col" style="background: var(--bg-card); color: var(--text-secondary); font-size: 0.75rem;">${emp.sector}</td>
             <td class="sticky-col" style="background: var(--bg-card); color: var(--text-primary); font-weight: 500;">${emp.name}</td>
-                <td class="sticky-col" style="background: var(--bg-card); color: var(--text-secondary); font-size: 0.75rem;">${shiftName}</td>
+                <td class="sticky-col" style="background: var(--bg-card); color: var(--text-secondary); font-size: 0.75rem;">${shiftTime}</td>
     `;
 
             for (let day = 1; day <= daysInMonth; day++) {
@@ -1162,28 +1152,12 @@ function renderCalendar() {
                 td.onclick = () => editCell(emp.id, dayKey, shiftId);
 
                 if (shiftObj) {
-                    let shiftColor = 'var(--shift-off)';
-                    let textColor = 'white';
-                    let borderColor = 'transparent';
-                    const type = shiftObj.name.toUpperCase();
-
-                    if (type === 'F') {
-                        shiftColor = 'rgba(255, 235, 59, 0.15)';
-                        textColor = '#b45309';
-                        borderColor = '#fcd34d';
-                    } else if (type === 'FE') {
-                        shiftColor = 'var(--shift-fe)';
-                    } else if (['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'].includes(type)) {
-                        if (['T1', 'T4', 'T7', 'T10'].includes(type)) shiftColor = 'rgba(0, 176, 240, 0.15)';
-                        if (['T2', 'T5', 'T8', 'T11'].includes(type)) shiftColor = 'rgba(0, 176, 80, 0.15)';
-                        if (['T3', 'T6', 'T9', 'T12'].includes(type)) shiftColor = 'rgba(255, 107, 157, 0.15)';
-
-                        if (['T1', 'T4', 'T7', 'T10'].includes(type)) { textColor = '#0077a3'; borderColor = '#00b0f0'; }
-                        if (['T2', 'T5', 'T8', 'T11'].includes(type)) { textColor = '#007033'; borderColor = '#00b050'; }
-                        if (['T3', 'T6', 'T9', 'T12'].includes(type)) { textColor = '#a8326b'; borderColor = '#ff6b9d'; }
-                    } else if (type === 'BH') {
-                        shiftColor = '#a1a1aa';
-                    }
+                    // Use dynamic colors from shift definition
+                    const color = shiftObj.color || '#cccccc';
+                    // Create transparent background (approx 15% opacity)
+                    const shiftColor = color.startsWith('#') && color.length === 7 ? color + '26' : color;
+                    const textColor = color;
+                    const borderColor = color;
 
                     td.innerHTML = `
                     <div class="shift-cell" style="

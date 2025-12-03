@@ -771,7 +771,7 @@ body {
 
 .schedule-table th.sticky-col:nth-child(3) {
     left: 270px;
-    min-width: 100px;
+    min-width: 140px;
 }
 
 .schedule-table td {
@@ -799,6 +799,8 @@ body {
 
 .schedule-table td.sticky-col:nth-child(3) {
     left: 270px;
+    min-width: 140px;
+    font-size: 0.7rem;
 }
 
 @media (max-width: 768px) {
