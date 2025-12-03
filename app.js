@@ -442,8 +442,19 @@ function setupEventListeners() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             if (confirm('Deseja realmente sair?')) {
-                await supabase.auth.signOut();
-                // onAuthStateChange will handle redirection
+                try {
+                    await supabase.auth.signOut();
+                } catch (error) {
+                    console.error('Logout error:', error);
+                } finally {
+                    // Force clear Supabase local storage
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.startsWith('sb-')) {
+                            localStorage.removeItem(key);
+                        }
+                    });
+                    window.location.reload();
+                }
             }
         });
     }
