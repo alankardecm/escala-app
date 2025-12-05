@@ -263,8 +263,24 @@ async function loadAppData() {
                 color: s.color
             }));
         } else if (AppState.shifts.length === 0) {
-            // Only warn if we really have no data at all
-            console.warn('⚠️ Recebido 0 turnos do Supabase.');
+            console.warn('⚠️ Recebido 0 turnos do Supabase. O banco parece estar vazio ou inacessível.');
+
+            // Auto-Healing: Try to restore default data if table is critically empty
+            // Only runs once to prevent infinite loops
+            if (!window.isRecoveringData && typeof importCompleteData === 'function') {
+                console.log('🚑 Iniciando AUTO-RECUPERAÇÃO de dados...');
+                window.isRecoveringData = true;
+                // Import without alerts (silent mode) if possible, or just standard import
+                // We'll wrap this in a small timeout to let the current execution finish
+                setTimeout(() => {
+                    importCompleteData(true) // Assuming we can modifying importData to accept silent flag, or just run it.
+                        .then(() => {
+                            console.log('✅ Auto-recuperação concluída. Recarregando dados...');
+                            loadAppData(); // Reload after fix
+                        })
+                        .catch(err => console.error('❌ Falha na auto-recuperação:', err));
+                }, 1000);
+            }
         }
 
         AppState.oncalls = oncallRes.data.map(o => ({

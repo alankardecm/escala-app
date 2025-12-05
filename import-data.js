@@ -112,10 +112,11 @@ const COMPLETE_IMPORT_DATA = {
 };
 
 // ===========================
+// ===========================
 // IMPORTAÇÃO
 // ===========================
 async function importCompleteData(silent = false) {
-    console.log('🔄 Importando dados...');
+    console.log('🔄 Importando dados... (Silent: ' + silent + ')');
 
     // 1. Limpar dados antigos do Supabase para evitar duplicatas
     if (typeof supabase !== 'undefined' && supabase) {
@@ -125,10 +126,6 @@ async function importCompleteData(silent = false) {
             await supabase.from('shifts').delete().neq('id', '0');
             await supabase.from('oncalls').delete().neq('id', '0');
             await supabase.from('vacations').delete().neq('id', '0');
-            // Não limpamos monthly_schedules para não perder históricos de meses anteriores se não for necessário,
-            // mas se for um reset completo, deveríamos. O usuário pediu "Importar Dados Completos", o que soa como reset.
-            // Vamos manter o histórico de escalas por segurança, ou limpar?
-            // O problema relatado foi duplicação de FUNCIONÁRIOS. Então limpar employees é o principal.
         } catch (error) {
             console.error('Erro ao limpar Supabase:', error);
         }
@@ -150,10 +147,18 @@ async function importCompleteData(silent = false) {
     // Salvar os novos dados
     await saveAppData();
 
-    if (!silent) alert('✅ Dados importados e duplicatas removidas!');
+    if (!silent) {
+        alert('✅ Dados importados e duplicatas removidas!');
+    } else {
+        console.log('✅ Auto-recuperação: Dados importados silenciosamente.');
+    }
+
     if (typeof renderDashboard === 'function') renderDashboard();
     return true;
 }
+
+// Ensure global access
+window.importCompleteData = importCompleteData;
 
 // ===========================
 // GERADOR DE ESCALA INTELIGENTE V2
