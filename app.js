@@ -254,15 +254,18 @@ async function loadAppData() {
             type: h.type
         }));
 
-        // DEBUG: Check what's coming from Supabase
-        console.log('🔍 Raw Shifts Data:', shiftRes.data);
-
-        AppState.shifts = shiftRes.data.map(s => ({
-            id: s.id,
-            name: s.name,
-            time: s.time,
-            color: s.color
-        }));
+        // Safety check: Prevent overwriting with empty data if Supabase returns nothing but we already have data
+        if (shiftRes.data && shiftRes.data.length > 0) {
+            AppState.shifts = shiftRes.data.map(s => ({
+                id: s.id,
+                name: s.name,
+                time: s.time,
+                color: s.color
+            }));
+        } else if (AppState.shifts.length === 0) {
+            // Only warn if we really have no data at all
+            console.warn('⚠️ Recebido 0 turnos do Supabase.');
+        }
 
         AppState.oncalls = oncallRes.data.map(o => ({
             id: o.id,
