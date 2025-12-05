@@ -287,10 +287,21 @@ async function loadAppData() {
         AppState.sectors = [...new Set(AppState.employees.map(e => e.sector))];
 
         console.log('✅ Dados carregados com sucesso');
+        updateMonthDisplay();
+        renderDashboard();
+        return true;
 
     } catch (error) {
         console.error('❌ Erro ao carregar dados:', error);
-        alert('Erro ao carregar dados. Verifique o console para mais detalhes.');
+
+        // Auto-retry logic for local file protocol issues
+        if (window.location.protocol === 'file:' && !window.hasRetriedLoad) {
+            console.log('🔄 Tentando recarregar dados automaticamente em 2s...');
+            window.hasRetriedLoad = true;
+            setTimeout(loadAppData, 2000);
+        } else {
+            alert('Erro ao carregar dados. Verifique a conexão e recarregue a página.');
+        }
     }
 }
 
