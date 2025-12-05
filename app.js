@@ -294,18 +294,6 @@ async function saveAppData() {
         if (employeesData.length > 0) {
             await supabase.from('employees').upsert(employeesData);
         }
-
-        // 2. Upsert Shifts
-        const shiftsData = AppState.shifts.map(s => ({
-            id: s.id,
-            name: s.name,
-            time: s.time,
-            color: s.color
-        }));
-        if (shiftsData.length > 0) {
-            await supabase.from('shifts').upsert(shiftsData);
-        }
-
         // 3. Upsert Oncalls
         const oncallsData = AppState.oncalls.map(o => ({
             id: o.id,
