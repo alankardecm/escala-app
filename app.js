@@ -1330,10 +1330,31 @@ function saveVacation() {
         end: end
     });
 
+    // Update Schedule Immediately
+    const emp = AppState.employees.find(e => e.name === name);
+    if (emp) {
+        // Use T12:00:00 to avoid timezone issues affecting the day
+        const startDate = new Date(start + 'T12:00:00');
+        const endDate = new Date(end + 'T12:00:00');
+
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const monthKey = `${year}-${month}`;
+
+            if (AppState.schedule[monthKey] && AppState.schedule[monthKey][emp.id]) {
+                AppState.schedule[monthKey][emp.id][day] = 'fe';
+            }
+        }
+    }
+
     saveAppData();
     renderVacations();
     closeVacationModal();
-    alert('✅ Férias agendadas com sucesso!');
+    alert('✅ Férias agendadas e escala atualizada!');
+
+    if (AppState.currentView === 'calendar') renderCalendar();
 }
 
 function renderVacations() {
