@@ -122,27 +122,40 @@ async function importCompleteData(silent = false) {
     if (typeof supabase !== 'undefined' && supabase) {
         try {
             console.log('🧹 Limpando banco de dados...');
-            await supabase.from('employees').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
+            // SECURITY CHECK: If Auto-Recovery (silent), DO NOT DELETE USER DATA (employees, vacations)
+            if (!silent) {
+                await supabase.from('employees').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                await supabase.from('vacations').delete().neq('id', '0');
+            }
+
+            // Only clean structural data if it's missing or if full reset
             await supabase.from('shifts').delete().neq('id', '0');
             await supabase.from('oncalls').delete().neq('id', '0');
-            await supabase.from('vacations').delete().neq('id', '0');
+
         } catch (error) {
             console.error('Erro ao limpar Supabase:', error);
         }
     }
 
     AppState.shifts = COMPLETE_IMPORT_DATA.shifts;
-    AppState.employees = COMPLETE_IMPORT_DATA.employees.map(emp => ({ ...emp, id: generateId() }));
     AppState.oncalls = COMPLETE_IMPORT_DATA.oncalls.map(oncall => ({ ...oncall, id: generateId() }));
-    AppState.vacations = (COMPLETE_IMPORT_DATA.vacations || []).map(v => ({ ...v, id: generateId() }));
+
+    // Only overwrite Employees and Vacations if Manual Import (not silent) or if they are empty
+    if (!silent || AppState.employees.length === 0) {
+        AppState.employees = COMPLETE_IMPORT_DATA.employees.map(emp => ({ ...emp, id: generateId() }));
+        AppState.sectors = [...new Set(AppState.employees.map(e => e.sector))];
+    }
+
+    if (!silent || AppState.vacations.length === 0) {
+        AppState.vacations = (COMPLETE_IMPORT_DATA.vacations || []).map(v => ({ ...v, id: generateId() }));
+    }
 
     const existingHolidays = AppState.holidays || [];
     COMPLETE_IMPORT_DATA.holidays.forEach(h => {
         if (!existingHolidays.some(eh => eh.date === h.date)) existingHolidays.push(h);
     });
     AppState.holidays = existingHolidays;
-
-    AppState.sectors = [...new Set(AppState.employees.map(e => e.sector))];
 
     // Salvar os novos dados
     await saveAppData();
