@@ -256,7 +256,7 @@ async function loadAppData() {
             id: s.id,
             name: s.name,
             time: s.time,
-            color: (s.id === 'bh' && ['#2d2d4a', '#8080a0'].includes(s.color)) ? '#9FA8DA' : s.color
+            color: s.color
         }));
 
         AppState.oncalls = oncallRes.data.map(o => ({
