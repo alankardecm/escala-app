@@ -7,115 +7,100 @@ O **EscalaApp** é uma aplicação web progressiva (PWA) desenvolvida para geren
 
 ---
 
-## 🚀 Funcionalidades
+## 📂 Guia de Arquivos (Estrutura do Projeto)
 
-### 1. Autenticação e Segurança
-*   **Login/Cadastro:** Sistema integrado com Supabase Auth.
-*   **Roles (Funções):**
-    *   **Admin:** Acesso total (Editar, Salvar, Gerar Escala, Configurações). Código de cadastro: `escala2025`.
-    *   **Visualizador:** Acesso somente leitura (Vê escalas e relatórios, mas não edita).
-*   **Confirmação de E-mail:** Obrigatória para novos cadastros.
+Aqui está uma explicação detalhada de onde encontrar cada parte do código:
+
+### 1. `index.html` (Estrutura)
+*   É o arquivo principal e único da aplicação (SPA - Single Page Application).
+*   Contém todo o esqueleto HTML:
+    *   **Login Container:** Tela de login/cadastro.
+    *   **Sidebar:** Menu lateral de navegação.
+    *   **Views:** As diferentes telas do sistema (`dashboardView`, `calendarView`, `employeesView`, etc.), que são mostradas/ocultadas via JavaScript.
+    *   **Modais:** Janelas flutuantes para adicionar funcionários, férias, etc.
+
+### 2. `styles.css` (Estilo e Design)
+*   Contém todo o CSS da aplicação.
+*   **Variáveis (:root):** No topo do arquivo, você encontra as cores principais (`--primary`, `--bg-card`) e as **cores dos turnos** (`--shift-t1`, etc.).
+*   **Responsividade:** No final do arquivo, existem as media queries (`@media`) que ajustam o layout para celulares.
+
+### 3. `app.js` (Lógica Principal)
+*   É o "cérebro" da aplicação.
+*   **Supabase Config:** Inicialização da conexão com o banco de dados.
+*   **AppState:** Objeto que guarda os dados carregados na memória (funcionários, turnos, escala atual).
+*   **Funções Principais:**
+    *   `initializeApp()`: Verifica login e carrega dados.
+    *   `generateSchedule()`: O algoritmo que cria a escala automática respeitando férias e regras.
+    *   `renderCalendar()`: Desenha a tabela de escala na tela.
+    *   `saveAppData()`: Envia as alterações para o Supabase.
+
+### 4. `import-data.js` (Dados e Importação)
+*   Arquivo auxiliar usado para **Importação em Massa** ou **Reset** de dados.
+*   Contém um objeto gigante `COMPLETE_IMPORT_DATA` com a lista padrão de funcionários, turnos e regras.
+*   **Dica:** Se precisar mudar a cor de um turno permanentemente ou adicionar vários funcionários de uma vez, edite este arquivo e use a função "Importar Dados Completos" nas Configurações do app.
+
+---
+
+## 🚀 Funcionalidades Chave
+
+### 1. Autenticação
+*   **Login/Cadastro:** Integrado com Supabase Auth.
+*   **Níveis de Acesso:**
+    *   **Admin:** (Código `escala2025`) Pode editar tudo.
+    *   **Visualizador:** Só pode ver.
 
 ### 2. Escala Mensal (Calendário)
-*   **Visualização:** Tabela dinâmica com cores por tipo de turno.
-*   **Edição (Admin):** Clique em qualquer célula para alterar o turno manualmente.
-*   **Geração Automática:** Algoritmo que respeita:
-    1.  Férias (Prioridade máxima).
-    2.  Escala 12x36 (Cálculo automático).
-    3.  Regras de Fim de Semana (Alternado, Sábado Alternado, Folga Fixa).
-    4.  Feriados (Vira Banco de Horas `BH` se trabalhado).
-*   **Persistência:** As escalas geradas devem ser **SALVAS** para ficarem visíveis para outros usuários.
+*   **Visualização:** Tabela com cores vibrantes para fácil identificação.
+*   **Horários:** A coluna exibe o horário exato (ex: "08:30 as 18:18").
+*   **Geração Inteligente:**
+    1.  **Férias:** Prioridade máxima (marca como `FE`).
+    2.  **12x36:** Calcula dias de trabalho e folga automaticamente.
+    3.  **FDS:** Alterna finais de semana conforme a regra do funcionário.
 
 ### 3. Gestão de Plantões (On-Call)
-*   **Rotação Automática:** Define quem está de plantão a cada semana.
-*   **Visualização:** Linha dedicada no topo da escala mensal.
-*   **Cálculo Dinâmico:** Baseado na data de início e ordem da equipe.
+*   Linha de destaque no topo da escala.
+*   Rotação automática de nomes baseada na data de início.
 
 ### 4. Relatórios
-*   **Exportação Excel:** Gera um arquivo `.csv` detalhado com:
-    *   Horas trabalhadas em FDS e Feriados.
-    *   Horas de sobreaviso (Plantão) calculadas por regra (NOC, Voz, Tech).
-
----
-
-## 🛠️ Stack Tecnológica
-
-*   **Frontend:** HTML5, CSS3 (Vanilla), JavaScript (ES6+).
-*   **Backend/Database:** Supabase (PostgreSQL + Auth).
-*   **Hospedagem:** Vercel.
-
----
-
-## 📂 Estrutura do Projeto
-
-*   `index.html`: Estrutura única da aplicação (SPA - Single Page Application).
-*   `styles.css`: Estilização completa, incluindo temas Claro/Escuro e responsividade mobile.
-*   `app.js`: **Núcleo da aplicação.** Contém:
-    *   Configuração do Supabase.
-    *   Lógica de Autenticação (`signUp`, `signIn`, `applyPermissions`).
-    *   Gerenciamento de Estado (`AppState`).
-    *   Regras de Negócio (Geração de escala, cálculo de plantão).
-    *   Manipulação do DOM e Eventos.
-*   `manifest.json` & `sw.js`: Configurações para instalação como App (PWA).
+*   Gera CSV compatível com Excel contendo horas trabalhadas em finais de semana e horas de sobreaviso.
 
 ---
 
 ## 🗄️ Banco de Dados (Supabase)
 
-O sistema utiliza as seguintes tabelas no Supabase:
-
-1.  **`employees`**: Cadastro de funcionários.
-    *   `id`, `name`, `sector`, `shift_id` (turno padrão), `weekend_rule`.
-2.  **`shifts`**: Definição dos turnos.
-    *   `id` (ex: T1), `name`, `time` (ex: 07:00-16:00), `color`.
-3.  **`oncalls`**: Configuração dos plantões.
-    *   `name`, `start_date`, `rotation` (array de nomes).
-4.  **`holidays`**: Feriados nacionais.
-    *   `date`, `name`, `type`.
-5.  **`monthly_schedules`**: Armazena as escalas geradas.
-    *   `month_key` (ex: '2025-12'), `data` (JSON com a escala de cada funcionário).
+Tabelas utilizadas:
+1.  **`employees`**: Funcionários e suas regras.
+2.  **`shifts`**: Definição dos turnos (Nome, Horário, Cor).
+3.  **`oncalls`**: Configuração das equipes de plantão.
+4.  **`holidays`**: Feriados cadastrados.
+5.  **`monthly_schedules`**: O JSON da escala gerada para cada mês.
 6.  **`vacations`**: Períodos de férias.
-    *   `employee_name`, `start_date`, `end_date`.
 
 ---
 
 ## ⚙️ Como Rodar Localmente
 
-1.  **Clone o repositório:**
+1.  **Clone o projeto:**
     ```bash
     git clone https://github.com/alankardecm/escala-app.git
     ```
-2.  **Abra o arquivo `index.html`** no seu navegador.
-    *   *Nota:* Para o Login funcionar perfeitamente localmente, recomenda-se usar uma extensão como "Live Server" no VS Code para servir os arquivos via `http://127.0.0.1:5500` em vez de `file://`.
+2.  **Instale uma extensão de servidor local** (como "Live Server" no VS Code).
+3.  **Abra o `index.html` com o Live Server.**
+    *   *Importante:* O Login do Supabase pode não funcionar se abrir direto pelo arquivo (`file://`). Use `http://localhost` ou `http://127.0.0.1`.
 
 ---
 
-## 🔄 Manutenção e Atualização
+## 🔄 Manutenção
 
-### Adicionar um Novo Turno
-1.  No Supabase, adicione uma linha na tabela `shifts`.
-2.  No arquivo `styles.css`, adicione a variável de cor correspondente (opcional, se quiser cor específica).
+### Mudar Cores dos Turnos
+1.  Edite o arquivo `import-data.js` na seção `shifts`.
+2.  Altere o código Hexadecimal (ex: `#E0AAFF`).
+3.  No App, vá em **Configurações > Importar Dados Completos**.
 
-### Alterar Regra de Plantão
-1.  No Supabase, edite a tabela `oncalls`.
-2.  Altere o array `rotation` para mudar a ordem dos plantonistas.
-3.  Altere `start_date` se precisar reiniciar o ciclo.
-
-### Atualizar Código
-1.  Edite os arquivos locais.
-2.  Commit e Push para o GitHub.
-3.  A Vercel fará o deploy automático.
-
+### Atualizar no GitHub/Vercel
 ```bash
 git add .
-git commit -m "Melhoria X"
+git commit -m "Descrição da mudança"
 git push
 ```
-
----
-
-## 🐛 Solução de Problemas Comuns
-
-*   **"Não consigo logar":** Verifique se confirmou o e-mail. Verifique se a senha tem 6+ caracteres.
-*   **"Escala aparece vazia":** O Admin precisa clicar em **"Gerar Escala"** e depois **"Salvar"**. Se não salvar, os dados não vão para o banco.
-*   **"Botão Cadastrar não funciona":** Limpe o cache do navegador (Ctrl+F5) para garantir que o script mais recente foi carregado.
+A Vercel detectará o push e atualizará o site em produção automaticamente.

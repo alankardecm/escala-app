@@ -20,8 +20,8 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
-                    .then(reg => console.log('Service Worker registered!', reg))
-                    .catch(err => console.log('Service Worker registration failed:', err));
+                    .then(reg => console.log('Service Worker registrado!', reg))
+                    .catch(err => console.log('Falha ao registrar Service Worker:', err));
             });
         }
     </script>
@@ -116,7 +116,7 @@
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <path d="M3 7L10 3L17 7V17L10 21L3 17V7Z" stroke="currentColor" stroke-width="2" />
                     </svg>
-                    Dashboard
+                    Painel
                 </button>
                 <button class="nav-item" data-view="calendar">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -221,7 +221,7 @@
                     </svg>
                 </button>
                 <div class="header-left">
-                    <h2 id="pageTitle">Dashboard</h2>
+                    <h2 id="pageTitle">Painel</h2>
                     <p id="pageSubtitle">Visão geral do sistema de escalas</p>
                 </div>
                 <div class="header-right">
@@ -261,7 +261,7 @@
 
             <!-- Dynamic Content Views -->
             <div id="contentContainer" class="content-container">
-                <!-- Dashboard View -->
+                <!-- Painel View -->
                 <div id="dashboardView" class="view active">
                     <div class="stats-grid">
                         <div class="stat-card" data-navigate="employees" style="cursor: pointer;">
@@ -695,7 +695,7 @@
 
             // Mapeamento de views para títulos e subtítulos
             const viewConfig = {
-                dashboard: { title: 'Dashboard', subtitle: 'Visão geral do sistema de escalas' },
+                dashboard: { title: 'Painel', subtitle: 'Visão geral do sistema de escalas' },
                 calendar: { title: 'Escala do Mês', subtitle: 'Visualizar e gerenciar a escala mensal' },
                 employees: { title: 'Funcionários', subtitle: 'Gerenciar funcionários cadastrados' },
                 shifts: { title: 'Turnos', subtitle: 'Configurar turnos de trabalho' },

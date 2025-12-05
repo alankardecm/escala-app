@@ -20,7 +20,7 @@ const COMPLETE_IMPORT_DATA = {
         { id: '12x36', name: '12x36', time: '12h Trabalho / 36h Folga', color: '#708090' },
 
         { id: 'f', name: 'F', time: 'Folga', color: '#ffeb3b' },
-        { id: 'bh', name: 'BH', time: 'Banco de Horas', color: '#2d2d4a' },
+        { id: 'bh', name: 'BH', time: 'Banco de Horas', color: '#8080a0' },
         { id: 'fe', name: 'FE', time: 'Férias', color: '#00ced1' },
         { id: 'ft', name: 'FT', time: 'Falta', color: '#8b0000' },
         { id: 'at', name: 'AT', time: 'Atestado', color: '#ffd700' }

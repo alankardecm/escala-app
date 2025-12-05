@@ -8,13 +8,13 @@ let supabase;
 try {
     if (window.supabase) {
         supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        console.log('✅ Supabase initialized');
+        console.log('✅ Supabase inicializado');
     } else {
-        console.error('❌ Supabase library not loaded!');
+        console.error('❌ Biblioteca Supabase não carregada!');
         alert('Erro Crítico: Biblioteca do Supabase não carregou. Verifique sua internet.');
     }
 } catch (e) {
-    console.error('❌ Error initializing Supabase:', e);
+    console.error('❌ Erro ao inicializar Supabase:', e);
 }
 
 // ===========================
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function initializeApp() {
-    console.log('🚀 Initializing App...');
+    console.log('🚀 Inicializando App...');
 
     // Theme Initialization
     const savedTheme = localStorage.getItem('theme');
@@ -53,7 +53,7 @@ async function initializeApp() {
     setupEventListeners();
 
     if (!supabase) {
-        console.warn('⚠️ Running without Supabase connection');
+        console.warn('⚠️ Rodando sem conexão com Supabase');
         showApp();
         return;
     }
@@ -62,11 +62,11 @@ async function initializeApp() {
     const { data: { session } } = await supabase.auth.getSession();
 
     if (session) {
-        console.log('✅ User logged in:', session.user.email);
+        console.log('✅ Usuário logado:', session.user.email);
         applyPermissions(session.user);
         showApp();
     } else {
-        console.log('🔒 No session, showing login');
+        console.log('🔒 Sem sessão, exibindo login');
         showLogin();
     }
 
@@ -82,10 +82,10 @@ async function initializeApp() {
 
     // Auth Switcher
     const authSwitchBtn = document.getElementById('authSwitchBtn');
-    console.log('🔍 Auth Switch Button found:', authSwitchBtn);
+    console.log('🔍 Botão de troca de Auth encontrado:', authSwitchBtn);
     if (authSwitchBtn) {
         authSwitchBtn.addEventListener('click', (e) => {
-            console.log('🖱️ Auth Switch Clicked!');
+            console.log('🖱️ Troca de Auth clicada!');
             e.preventDefault();
             isSignUpMode = !isSignUpMode;
 
@@ -161,7 +161,7 @@ async function initializeApp() {
                     if (error) throw error;
                 }
             } catch (error) {
-                console.error('Auth error:', error);
+                console.error('Erro de Autenticação:', error);
                 errorDiv.textContent = 'Erro: ' + (error.message === 'Invalid login credentials' ? 'Dados incorretos' : error.message);
                 errorDiv.style.display = 'block';
                 btn.disabled = false;
@@ -179,7 +179,7 @@ function showLogin() {
 
 function applyPermissions(user) {
     const role = user.user_metadata?.role || 'viewer';
-    console.log('👤 User Role:', role);
+    console.log('👤 Papel do Usuário:', role);
 
     if (role === 'admin') {
         document.body.classList.remove('read-only-mode');
@@ -207,7 +207,7 @@ function showApp() {
 
 async function loadAppData() {
     try {
-        console.log('📥 Loading data from Supabase...');
+        console.log('📥 Carregando dados do Supabase...');
 
         // Fetch core data
         const [empRes, shiftRes, oncallRes, holidayRes, scheduleRes] = await Promise.all([
@@ -229,12 +229,12 @@ async function loadAppData() {
         try {
             const { data, error } = await supabase.from('vacations').select('*');
             if (error) {
-                console.warn('⚠️ Could not load vacations (Table might be missing):', error.message);
+                console.warn('⚠️ Não foi possível carregar férias (Tabela pode estar ausente):', error.message);
             } else {
                 vacationsData = data;
             }
         } catch (err) {
-            console.warn('⚠️ Error fetching vacations:', err);
+            console.warn('⚠️ Erro ao buscar férias:', err);
         }
 
         // Map Supabase data to AppState
@@ -279,22 +279,22 @@ async function loadAppData() {
             scheduleRes.data.forEach(item => {
                 AppState.schedule[item.month_key] = item.data;
             });
-            console.log('📅 Schedules loaded:', Object.keys(AppState.schedule));
+            console.log('📅 Escalas carregadas:', Object.keys(AppState.schedule));
         }
 
         // Rebuild Sectors list
         AppState.sectors = [...new Set(AppState.employees.map(e => e.sector))];
 
-        console.log('✅ Data loaded successfully');
+        console.log('✅ Dados carregados com sucesso');
 
     } catch (error) {
-        console.error('❌ Error loading data:', error);
+        console.error('❌ Erro ao carregar dados:', error);
         alert('Erro ao carregar dados. Verifique o console para mais detalhes.');
     }
 }
 
 async function saveAppData() {
-    console.log('Saving data to Supabase...');
+    console.log('Salvando dados no Supabase...');
 
     try {
         // 1. Upsert Employees
@@ -364,10 +364,10 @@ async function saveAppData() {
             });
         }
 
-        console.log('✅ Data saved to Supabase');
+        console.log('✅ Dados salvos no Supabase');
 
     } catch (error) {
-        console.error('Error saving data:', error);
+        console.error('Erro ao salvar dados:', error);
     }
 }
 
@@ -445,7 +445,7 @@ function setupEventListeners() {
                 try {
                     await supabase.auth.signOut();
                 } catch (error) {
-                    console.error('Logout error:', error);
+                    console.error('Erro ao sair:', error);
                 } finally {
                     // Force clear Supabase local storage
                     Object.keys(localStorage).forEach(key => {
@@ -577,7 +577,7 @@ function switchView(viewName) {
     document.getElementById(`${viewName}View`).classList.add('active');
 
     const titles = {
-        dashboard: { title: 'Dashboard', subtitle: 'Visão geral do sistema de escalas' },
+        dashboard: { title: 'Painel', subtitle: 'Visão geral do sistema de escalas' },
         calendar: { title: 'Escala do Mês', subtitle: 'Visualizar e gerenciar a escala mensal' },
         employees: { title: 'Funcionários', subtitle: 'Gerenciar cadastro de funcionários e férias' },
         shifts: { title: 'Turnos', subtitle: 'Configurar horários de trabalho' },
