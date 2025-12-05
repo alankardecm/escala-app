@@ -1,106 +1,101 @@
-# 📘 Documentação Completa - EscalaApp
+# Documentação Técnica - EscalaApp
 
-## 🌟 Visão Geral
-O **EscalaApp** é uma aplicação web progressiva (PWA) desenvolvida para gerenciar escalas de trabalho, plantões e férias de equipes de TI/NOC. O sistema oferece controle de acesso baseado em funções (Admin/Visualizador), geração automática de escalas com regras complexas (12x36, FDS alternado) e exportação de relatórios.
-
-**URL de Produção:** [https://escala-app-three.vercel.app/](https://escala-app-three.vercel.app/)
-
----
-
-## 📂 Guia de Arquivos (Estrutura do Projeto)
-
-Aqui está uma explicação detalhada de onde encontrar cada parte do código:
-
-### 1. `index.html` (Estrutura)
-*   É o arquivo principal e único da aplicação (SPA - Single Page Application).
-*   Contém todo o esqueleto HTML:
-    *   **Login Container:** Tela de login/cadastro.
-    *   **Sidebar:** Menu lateral de navegação.
-    *   **Views:** As diferentes telas do sistema (`dashboardView`, `calendarView`, `employeesView`, etc.), que são mostradas/ocultadas via JavaScript.
-    *   **Modais:** Janelas flutuantes para adicionar funcionários, férias, etc.
-
-### 2. `styles.css` (Estilo e Design)
-*   Contém todo o CSS da aplicação.
-*   **Variáveis (:root):** No topo do arquivo, você encontra as cores principais (`--primary`, `--bg-card`) e as **cores dos turnos** (`--shift-t1`, etc.).
-*   **Responsividade:** No final do arquivo, existem as media queries (`@media`) que ajustam o layout para celulares.
-
-### 3. `app.js` (Lógica Principal)
-*   É o "cérebro" da aplicação.
-*   **Supabase Config:** Inicialização da conexão com o banco de dados.
-*   **AppState:** Objeto que guarda os dados carregados na memória (funcionários, turnos, escala atual).
-*   **Funções Principais:**
-    *   `initializeApp()`: Verifica login e carrega dados.
-    *   `generateSchedule()`: O algoritmo que cria a escala automática respeitando férias e regras.
-    *   `renderCalendar()`: Desenha a tabela de escala na tela.
-    *   `saveAppData()`: Envia as alterações para o Supabase.
-
-### 4. `import-data.js` (Dados e Importação)
-*   Arquivo auxiliar usado para **Importação em Massa** ou **Reset** de dados.
-*   Contém um objeto gigante `COMPLETE_IMPORT_DATA` com a lista padrão de funcionários, turnos e regras.
-*   **Dica:** Se precisar mudar a cor de um turno permanentemente ou adicionar vários funcionários de uma vez, edite este arquivo e use a função "Importar Dados Completos" nas Configurações do app.
+**Projeto:** Sistema de Gestão de Escalas Automáticas (NOC & Suporte)
+**Versão:** 1.2 (Stable Production)
+**Data da Documentação:** 05/12/2025
+**Desenvolvedor Principal:** Alan Moreira & Antigravity AI
 
 ---
 
-## 🚀 Funcionalidades Chave
+## 1. Visão Geral
+O EscalaApp é uma aplicação web (Single Page Application - SPA) desenvolvida para substituir planilhas manuais na gestão de escalas de trabalho de equipes de TI (NOC, Suporte, Redes). Ele permite o cadastro de funcionários, turnos, e gera automaticamente a escala mensal baseada em regras complexas (12x36, alternado, folga FDS).
 
-### 1. Autenticação
-*   **Login/Cadastro:** Integrado com Supabase Auth.
-*   **Níveis de Acesso:**
-    *   **Admin:** (Código `escala2025`) Pode editar tudo.
-    *   **Visualizador:** Só pode ver.
-
-### 2. Escala Mensal (Calendário)
-*   **Visualização:** Tabela com cores vibrantes para fácil identificação.
-*   **Horários:** A coluna exibe o horário exato (ex: "08:30 as 18:18").
-*   **Geração Inteligente:**
-    1.  **Férias:** Prioridade máxima (marca como `FE`).
-    2.  **12x36:** Calcula dias de trabalho e folga automaticamente.
-    3.  **FDS:** Alterna finais de semana conforme a regra do funcionário.
-
-### 3. Gestão de Plantões (On-Call)
-*   Linha de destaque no topo da escala.
-*   Rotação automática de nomes baseada na data de início.
-
-### 4. Relatórios
-*   Gera CSV compatível com Excel contendo horas trabalhadas em finais de semana e horas de sobreaviso.
+### Tecnologias Usadas
+-   **Frontend:** HTML5, CSS3 (Variáveis CSS para temas), JavaScript (Vanilla ES6+).
+-   **Backend/Banco de Dados:** Supabase (PostgreSQL + Auth).
+-   **Hospedagem:** Vercel (Frontend), Supabase (Backend).
+-   **Autenticação:** Supabase Auth (Email/Senha).
 
 ---
 
-## 🗄️ Banco de Dados (Supabase)
+## 2. Estrutura do Projeto
 
-Tabelas utilizadas:
-1.  **`employees`**: Funcionários e suas regras.
-2.  **`shifts`**: Definição dos turnos (Nome, Horário, Cor).
-3.  **`oncalls`**: Configuração das equipes de plantão.
-4.  **`holidays`**: Feriados cadastrados.
-5.  **`monthly_schedules`**: O JSON da escala gerada para cada mês.
-6.  **`vacations`**: Períodos de férias.
-
----
-
-## ⚙️ Como Rodar Localmente
-
-1.  **Clone o projeto:**
-    ```bash
-    git clone https://github.com/alankardecm/escala-app.git
-    ```
-2.  **Instale uma extensão de servidor local** (como "Live Server" no VS Code).
-3.  **Abra o `index.html` com o Live Server.**
-    *   *Importante:* O Login do Supabase pode não funcionar se abrir direto pelo arquivo (`file://`). Use `http://localhost` ou `http://127.0.0.1`.
-
----
-
-## 🔄 Manutenção
-
-### Mudar Cores dos Turnos
-1.  Edite o arquivo `import-data.js` na seção `shifts`.
-2.  Altere o código Hexadecimal (ex: `#E0AAFF`).
-3.  No App, vá em **Configurações > Importar Dados Completos**.
-
-### Atualizar no GitHub/Vercel
-```bash
-git add .
-git commit -m "Descrição da mudança"
-git push
 ```
-A Vercel detectará o push e atualizará o site em produção automaticamente.
+/
+├── index.html           # Estrutura única da aplicação (SPA)
+├── style.css            # Estilização global, temas (Dark/Light) e componentes
+├── app.js               # Lógica CORE: Conexão DB, Estado, Renderização, Eventos
+├── import-data.js       # Script auxiliar para Reset, Importação Inicial e Auto-Cura
+├── manifest.json        # Configuração PWA (Instalação no Desktop/Mobile)
+└── sw.js                # Service Worker para cache e funcionamento offline (básico)
+```
+
+---
+
+## 3. Fluxo de Funcionamento e Lógica Crítica
+
+### 3.1. Carregamento de Dados (`loadAppData` em `app.js`)
+Esta é a função mais crítica do sistema. Ela conecta no Supabase e baixa 5 tabelas simultaneamente (`employees`, `shifts`, `oncalls`, `holidays`, `monthly_schedules`).
+
+**Problema Encontrado (Bug dos "Turnos Sumindo"):**
+Durante o desenvolvimento, enfrentamos um problema onde o Supabase retornava dados vazios (`[]`) aleatoriamente, provavelmente devido a cache local ou instabilidade de rede, fazendo a interface "limpar" os turnos da tela.
+
+**Solução Implementada (Auto-Cura / Self-Healing):**
+Implementamos uma lógica de proteção robusta dentro de `loadAppData`:
+1.  **Proteção de Sobrescrita:** Se o Supabase retornar vazio, mas a memória local (`AppState`) já tiver dados, o sistema IGNORA a resposta vazia e mantém os dados locais.
+2.  **Auto-Recuperação:** Se o sistema detectar que a tabela de Turnos está realmente vazia (0 registros), ele aciona automaticamente a função `importCompleteData(true)` em modo silencioso para restaurar a estrutura básica do banco sem intervenção humana.
+
+### 3.2. Importação e Reset (`importCompleteData` em `import-data.js`)
+Função responsável por popular o banco de dados.
+
+**Logica de Segurança:**
+*   **Modo Manual:** Limpa TUDO e reimporta do zero (Reset de Fábrica).
+*   **Modo Silencioso (Auto-Cura):** Restaura apenas dados estruturais (`shifts`, `oncalls`) se estiverem faltando. **NUNCA APAGA** `employees` (Funcionários) ou `vacations` (Férias) neste modo, preservando os dados cadastrados pelo usuário.
+
+### 3.3. Geração de Escala (`generateSmartSchedule` em `import-data.js`)
+O algoritmo que preenche a grade mensal:
+1.  Verifica **Férias** primeiro (Regra Suprema).
+2.  Verifica regra **12x36**.
+3.  Aplica regras de **Fim de Semana** (Alternado, Folga Fixa, Trabalho no Domingo).
+4.  Preenche dias úteis com o turno padrão do funcionário.
+
+---
+
+## 4. Banco de Dados (Supabase)
+
+### Tabelas Principais
+*   **employees:** `id` (uuid), `name`, `sector`, `shift_id` (vínculo com shifts), `weekend_rule`.
+*   **shifts:** `id` (código ex: 't1', 'bh'), `name`, `time` (07:00 às 16:00), `color`.
+    *   *Nota:* O turno 'BH' (Banco de Horas) tem cor fixa tratada no código para visibilidade (#9FA8DA).
+*   **oncalls:** Plantões e rodízios.
+*   **vacations:** Férias (`employeeName`, `start`, `end`).
+*   **monthly_schedules:** Armazena o JSON da escala gerada para cada mês (`month_key`: '2025-12', `data`: JSON).
+
+---
+
+## 5. Erros Conhecidos e Soluções (Troubleshooting)
+
+| Sintoma | Causa Provável | Solução |
+| :--- | :--- | :--- |
+| **Turnos desapareceram da tela** | Falha no carregamento do Supabase ou Cache. | O sistema deve se auto-curar em 2s. Se não, recarregue a página ou clique em "Importar Dados Completos" nas Configurações. |
+| **Alteração de regra de funcionário não reflete na escala** | Escala do mês já estava gerada/salva. | Vá na "Escala do Mês", clique em "Gerar Escala" novamente e confirme a sobrescrita. |
+| **Banco de dados retornando erro de permissão** | Token do Supabase expirou ou RLS mal configurado. | Verifique se as Policies (RLS) no Supabase estão como `public` para leitura/escrita (configuração atual simplificada). |
+| **Dados salvos não persistem** | Falha de conexão na hora do `upsert`. | Verifique o console do navegador (F12). O sistema alerta se falhar. |
+
+---
+
+## 6. Como Manter e Ovoluir
+
+1.  **Adicionar Novo Turno:**
+    *   Adicione o objeto no array `shifts` dentro de `import-data.js` (para ser o padrão em novos resets).
+    *   Ou adicione via interface gráfica na aba "Turnos".
+
+2.  **Backup:**
+    *   A tabela `monthly_schedules` é o backup histórico. Nunca a apague a menos que queira perder o histórico de quem trabalhou quando.
+
+3.  **Local vs Produção:**
+    *   O código detecta se está rodando local (`file://` ou `localhost`) e tenta contornar problemas de cache. Sempre teste as alterações de lógica de dados em aba anônima.
+
+---
+
+**Observação Final:** O sistema foi projetado para ser resiliente. A lógica de "Auto-Recuperação" é o coração da estabilidade atual. Ao alterar `loadAppData` ou `importCompleteData`, tenha extremo cuidado para não quebrar essa proteção.
