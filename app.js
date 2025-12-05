@@ -1187,7 +1187,7 @@ function editCell(empId, day, currentShiftId) {
     const emp = AppState.employees.find(e => e.id === empId);
     const year = AppState.currentMonth.getFullYear();
     const month = AppState.currentMonth.getMonth() + 1;
-    const monthKey = `${year} -${String(month).padStart(2, '0')} `;
+    const monthKey = `${year}-${String(month).padStart(2, '0')}`;
 
     const newShiftName = prompt(
         `Editar escala de ${emp.name} para dia ${day}/${month}:\n\n` +
