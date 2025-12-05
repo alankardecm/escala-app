@@ -252,6 +252,21 @@ async function loadAppData() {
             type: h.type
         }));
 
+        AppState.shifts = shiftRes.data.map(s => ({
+            id: s.id,
+            name: s.name,
+            time: s.time,
+            color: (s.id === 'bh' && ['#2d2d4a', '#8080a0'].includes(s.color)) ? '#9FA8DA' : s.color
+        }));
+
+        AppState.oncalls = oncallRes.data.map(o => ({
+            id: o.id,
+            name: o.name,
+            startDate: o.start_date,
+            rotation: o.rotation
+        }));
+
+
         AppState.vacations = vacationsData.map(v => ({
             id: v.id,
             employeeName: v.employee_name,
