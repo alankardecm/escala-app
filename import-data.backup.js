@@ -8,19 +8,19 @@ const COMPLETE_IMPORT_DATA = {
         { id: 't1', name: 'T1', time: '07:00 às 16:00', color: '#00b0f0' },
         { id: 't2', name: 'T2', time: '13:00 às 22:00', color: '#00b050' },
         { id: 't3', name: 'T3', time: '08:30 às 18:18', color: '#ff6b9d' },
-        { id: 't4', name: 'T4', time: '00:00 às 09:00', color: '#E0AAFF' },
+        { id: 't4', name: 'T4', time: '00:00 às 09:00', color: '#483d8b' },
         { id: 't5', name: 'T5', time: '08:00 às 16:00', color: '#87ceeb' },
         { id: 't6', name: 'T6', time: '09:00 às 18:00', color: '#ff0000' },
         { id: 't7', name: 'T7', time: '22:00 às 07:00', color: '#9966ff' },
         { id: 't8', name: 'T8', time: '08:00 às 17:00', color: '#ffa500' },
         { id: 't9', name: 'T9', time: '10:00 às 19:00', color: '#ff00ff' },
-        { id: 't10', name: 'T10', time: '14:00 às 22:00', color: '#C77DFF' },
+        { id: 't10', name: 'T10', time: '14:00 às 22:00', color: '#663399' },
         { id: 't11', name: 'T11', time: '11:00 às 20:00', color: '#a52a2a' },
         { id: 't12', name: 'T12', time: '12:00 às 21:00', color: '#20b2aa' },
         { id: '12x36', name: '12x36', time: '12h Trabalho / 36h Folga', color: '#708090' },
 
         { id: 'f', name: 'F', time: 'Folga', color: '#ffeb3b' },
-        { id: 'bh', name: 'BH', time: 'Banco de Horas', color: '#9FA8DA' },
+        { id: 'bh', name: 'BH', time: 'Banco de Horas', color: '#2d2d4a' },
         { id: 'fe', name: 'FE', time: 'Férias', color: '#00ced1' },
         { id: 'ft', name: 'FT', time: 'Falta', color: '#8b0000' },
         { id: 'at', name: 'AT', time: 'Atestado', color: '#ffd700' }
@@ -29,17 +29,17 @@ const COMPLETE_IMPORT_DATA = {
     // Funcionários
     employees: [
         // SUPORTE N1
-        { name: 'Gustavo Soares', sector: 'SUPORTE N1', shiftId: 't1', weekendRule: 'alternating_sun' },
-        { name: 'Gabriel Agostinho', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating_sun' },
-        { name: 'Brenno Benuto', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating_sun' },
+        { name: 'Gustavo Soares', sector: 'SUPORTE N1', shiftId: 't1', weekendRule: 'alternating' },
+        { name: 'Gabriel Agostinho', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating' },
+        { name: 'Brenno Benuto', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating' },
         { name: 'Gabriella Piedra', sector: 'SUPORTE N1', shiftId: 't1', weekendRule: 'alternating_sat' },
         { name: 'Douglas Medeiros', sector: 'SUPORTE N1', shiftId: 't4', weekendRule: 'alternating' },
         { name: 'Gabriel Amoedo', sector: 'SUPORTE N1', shiftId: 't7', weekendRule: 'alternating' },
-        { name: 'Vinicius Kiyoshi', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating_sun' },
+        { name: 'Vinicius Kiyoshi', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating' },
         { name: 'Hélio Batista', sector: 'SUPORTE N1', shiftId: 't8', weekendRule: 'alternating' },
         { name: 'Carlos Santos', sector: 'SUPORTE N1', shiftId: 't2', weekendRule: 'alternating' },
         { name: 'Felipe Thacio', sector: 'SUPORTE N1', shiftId: 't1', weekendRule: 'alternating' },
-        { name: 'Lucas Torres', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating_sun' },
+        { name: 'Lucas Torres', sector: 'SUPORTE N1', shiftId: 't6', weekendRule: 'alternating' },
         { name: 'Luiz Silva', sector: 'SUPORTE N1', shiftId: 't3', weekendRule: 'alternating' },
         { name: 'Gabriel Sebastião', sector: 'SUPORTE N1', shiftId: 't3', weekendRule: 'alternating' },
         { name: 'Riquelme Sousa', sector: 'SUPORTE N1', shiftId: 't3', weekendRule: 'alternating' },
@@ -57,8 +57,8 @@ const COMPLETE_IMPORT_DATA = {
         { name: 'Henrique Xavier', sector: 'ATIVAÇÃO REDE', shiftId: 't3', weekendRule: 'off' },
         { name: 'D D', sector: 'ATIVAÇÃO REDE', shiftId: 't6', weekendRule: 'off' },
 
-        { name: 'Alexandre Rozendo', sector: 'TELEFONIA', shiftId: 't6', weekendRule: 'alternating_sun' },
-        { name: 'Fabricio Amorim', sector: 'TELEFONIA', shiftId: 't8', weekendRule: 'alternating_sun' },
+        { name: 'Alexandre Rozendo', sector: 'TELEFONIA', shiftId: 't6', weekendRule: 'off' },
+        { name: 'Fabricio Amorim', sector: 'TELEFONIA', shiftId: 't8', weekendRule: 'off' },
         { name: 'Melchisedek Silva', sector: 'TELEFONIA', shiftId: 't3', weekendRule: 'off' },
         { name: 'Jose Armando Viana Silva', sector: 'TELEFONIA', shiftId: 't3', weekendRule: 'off' },
 
@@ -114,26 +114,8 @@ const COMPLETE_IMPORT_DATA = {
 // ===========================
 // IMPORTAÇÃO
 // ===========================
-async function importCompleteData(silent = false) {
+function importCompleteData(silent = false) {
     console.log('🔄 Importando dados...');
-
-    // 1. Limpar dados antigos do Supabase para evitar duplicatas
-    if (typeof supabase !== 'undefined' && supabase) {
-        try {
-            console.log('🧹 Limpando banco de dados...');
-            await supabase.from('employees').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-            await supabase.from('shifts').delete().neq('id', '0');
-            await supabase.from('oncalls').delete().neq('id', '0');
-            await supabase.from('vacations').delete().neq('id', '0');
-            // Não limpamos monthly_schedules para não perder históricos de meses anteriores se não for necessário,
-            // mas se for um reset completo, deveríamos. O usuário pediu "Importar Dados Completos", o que soa como reset.
-            // Vamos manter o histórico de escalas por segurança, ou limpar?
-            // O problema relatado foi duplicação de FUNCIONÁRIOS. Então limpar employees é o principal.
-        } catch (error) {
-            console.error('Erro ao limpar Supabase:', error);
-        }
-    }
-
     AppState.shifts = COMPLETE_IMPORT_DATA.shifts;
     AppState.employees = COMPLETE_IMPORT_DATA.employees.map(emp => ({ ...emp, id: generateId() }));
     AppState.oncalls = COMPLETE_IMPORT_DATA.oncalls.map(oncall => ({ ...oncall, id: generateId() }));
@@ -146,11 +128,9 @@ async function importCompleteData(silent = false) {
     AppState.holidays = existingHolidays;
 
     AppState.sectors = [...new Set(AppState.employees.map(e => e.sector))];
+    saveAppData();
 
-    // Salvar os novos dados
-    await saveAppData();
-
-    if (!silent) alert('✅ Dados importados e duplicatas removidas!');
+    if (!silent) alert('✅ Dados importados! (Férias, 12x36 e Plantões atualizados)');
     if (typeof renderDashboard === 'function') renderDashboard();
     return true;
 }

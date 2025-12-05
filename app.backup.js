@@ -8,13 +8,13 @@ let supabase;
 try {
     if (window.supabase) {
         supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        console.log('✅ Supabase inicializado');
+        console.log('✅ Supabase initialized');
     } else {
-        console.error('❌ Biblioteca Supabase não carregada!');
+        console.error('❌ Supabase library not loaded!');
         alert('Erro Crítico: Biblioteca do Supabase não carregou. Verifique sua internet.');
     }
 } catch (e) {
-    console.error('❌ Erro ao inicializar Supabase:', e);
+    console.error('❌ Error initializing Supabase:', e);
 }
 
 // ===========================
@@ -35,14 +35,12 @@ const AppState = {
 // ===========================
 // INITIALIZATION
 // ===========================
-let isSignUpMode = false;
-
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
 });
 
 async function initializeApp() {
-    console.log('🚀 Inicializando App...');
+    console.log('🚀 Initializing App...');
 
     // Theme Initialization
     const savedTheme = localStorage.getItem('theme');
@@ -50,164 +48,29 @@ async function initializeApp() {
         document.body.classList.add('light-mode');
     }
 
-    setupEventListeners();
-
-    if (!supabase) {
-        console.warn('⚠️ Rodando sem conexão com Supabase');
-        showApp();
-        return;
-    }
-
-    // Check Auth Session
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (session) {
-        console.log('✅ Usuário logado:', session.user.email);
-        applyPermissions(session.user);
-        showApp();
-    } else {
-        console.log('🔒 Sem sessão, exibindo login');
-        showLogin();
-    }
-
-    // Listen for Auth Changes
-    supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN') {
-            applyPermissions(session.user);
-            showApp();
-        } else if (event === 'SIGNED_OUT') {
-            showLogin();
-        }
-    });
-
-    // Auth Switcher
-    const authSwitchBtn = document.getElementById('authSwitchBtn');
-    console.log('🔍 Botão de troca de Auth encontrado:', authSwitchBtn);
-    if (authSwitchBtn) {
-        authSwitchBtn.addEventListener('click', (e) => {
-            console.log('🖱️ Troca de Auth clicada!');
-            e.preventDefault();
-            isSignUpMode = !isSignUpMode;
-
-            const title = document.querySelector('.login-header h2');
-            const submitBtn = document.getElementById('authSubmitBtn');
-            const switchText = document.getElementById('authSwitchText');
-            const adminGroup = document.getElementById('adminCodeGroup');
-
-            if (isSignUpMode) {
-                title.textContent = 'Criar Conta';
-                submitBtn.textContent = 'Cadastrar';
-                switchText.textContent = 'Já tem conta?';
-                authSwitchBtn.textContent = 'Entrar';
-                adminGroup.style.display = 'block';
-            } else {
-                title.textContent = 'EscalaApp';
-                submitBtn.textContent = 'Entrar no Sistema';
-                switchText.textContent = 'Não tem conta?';
-                authSwitchBtn.textContent = 'Cadastre-se';
-                adminGroup.style.display = 'none';
-            }
-        });
-    }
-
-    // Login/Signup Form Listener
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const adminCode = document.getElementById('adminCode').value;
-            const errorDiv = document.getElementById('loginError');
-            const btn = document.getElementById('authSubmitBtn');
-
-            errorDiv.style.display = 'none';
-            errorDiv.textContent = '';
-            btn.disabled = true;
-            btn.textContent = 'Processando...';
-
-            try {
-                if (isSignUpMode) {
-                    // SIGN UP
-                    const role = (adminCode === 'escala2025') ? 'admin' : 'viewer';
-
-                    const { data, error } = await supabase.auth.signUp({
-                        email: email,
-                        password: password,
-                        options: {
-                            data: { role: role }
-                        }
-                    });
-
-                    if (error) throw error;
-
-                    if (data.user && !data.session) {
-                        alert('Cadastro realizado! 📧 Verifique seu e-mail (e a pasta de Spam) para confirmar a conta antes de fazer login.\n\nDepois de confirmar, volte aqui e faça login.');
-                        // Volta para a tela de login
-                        authSwitchBtn.click();
-                        btn.disabled = false;
-                        btn.textContent = 'Entrar no Sistema';
-                    } else if (data.user && data.user.identities && data.user.identities.length === 0) {
-                        throw new Error('Este email já está cadastrado.');
-                    } else {
-                        alert(`Conta criada com sucesso! Você é um ${role === 'admin' ? 'ADMINISTRADOR' : 'VISUALIZADOR'}.`);
-                    }
-                } else {
-                    // SIGN IN
-                    const { data, error } = await supabase.auth.signInWithPassword({
-                        email: email,
-                        password: password
-                    });
-                    if (error) throw error;
-                }
-            } catch (error) {
-                console.error('Erro de Autenticação:', error);
-                errorDiv.textContent = 'Erro: ' + (error.message === 'Invalid login credentials' ? 'Dados incorretos' : error.message);
-                errorDiv.style.display = 'block';
-                btn.disabled = false;
-                btn.textContent = isSignUpMode ? 'Cadastrar' : 'Entrar no Sistema';
-            }
-        });
-    }
-}
-
-function showLogin() {
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('loginContainer').style.display = 'flex';
-}
-
-function applyPermissions(user) {
-    const role = user.user_metadata?.role || 'viewer';
-    console.log('👤 Papel do Usuário:', role);
-
-    if (role === 'admin') {
-        document.body.classList.remove('read-only-mode');
-    } else {
-        document.body.classList.add('read-only-mode');
-    }
-}
-
-function showApp() {
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('loginContainer').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-
-    // Load Data only when showing app
     if (supabase) {
-        loadAppData().then(() => {
-            updateMonthDisplay();
-            renderDashboard();
-        });
+        await loadAppData();
     } else {
-        updateMonthDisplay();
-        renderDashboard();
+        console.warn('⚠️ Running without Supabase connection');
     }
+
+    setupEventListeners();
+    updateMonthDisplay();
+    renderDashboard();
+
+    // Hide Loading Screen & Show App
+    const loadingScreen = document.getElementById('loadingScreen');
+    const appContainer = document.getElementById('app');
+
+    if (loadingScreen) loadingScreen.style.display = 'none';
+    if (appContainer) appContainer.style.display = 'flex';
+
+    console.log('✅ App Initialized');
 }
 
 async function loadAppData() {
     try {
-        console.log('📥 Carregando dados do Supabase...');
+        console.log('📥 Loading data from Supabase...');
 
         // Fetch core data
         const [empRes, shiftRes, oncallRes, holidayRes, scheduleRes] = await Promise.all([
@@ -229,12 +92,12 @@ async function loadAppData() {
         try {
             const { data, error } = await supabase.from('vacations').select('*');
             if (error) {
-                console.warn('⚠️ Não foi possível carregar férias (Tabela pode estar ausente):', error.message);
+                console.warn('⚠️ Could not load vacations (Table might be missing):', error.message);
             } else {
                 vacationsData = data;
             }
         } catch (err) {
-            console.warn('⚠️ Erro ao buscar férias:', err);
+            console.warn('⚠️ Error fetching vacations:', err);
         }
 
         // Map Supabase data to AppState
@@ -244,6 +107,20 @@ async function loadAppData() {
             sector: e.sector,
             shiftId: e.shift_id,
             weekendRule: e.weekend_rule
+        }));
+
+        AppState.shifts = shiftRes.data.map(s => ({
+            id: s.id,
+            name: s.name,
+            time: s.time,
+            color: s.color
+        }));
+
+        AppState.oncalls = oncallRes.data.map(o => ({
+            id: o.id,
+            name: o.name,
+            startDate: o.start_date,
+            rotation: o.rotation
         }));
 
         AppState.holidays = holidayRes.data.map(h => ({
@@ -261,26 +138,23 @@ async function loadAppData() {
 
         // Convert schedule array back to object map
         AppState.schedule = {};
-        if (scheduleRes.data) {
-            scheduleRes.data.forEach(item => {
-                AppState.schedule[item.month_key] = item.data;
-            });
-            console.log('📅 Escalas carregadas:', Object.keys(AppState.schedule));
-        }
+        scheduleRes.data.forEach(item => {
+            AppState.schedule[item.month_key] = item.data;
+        });
 
         // Rebuild Sectors list
         AppState.sectors = [...new Set(AppState.employees.map(e => e.sector))];
 
-        console.log('✅ Dados carregados com sucesso');
+        console.log('✅ Data loaded successfully');
 
     } catch (error) {
-        console.error('❌ Erro ao carregar dados:', error);
+        console.error('❌ Error loading data:', error);
         alert('Erro ao carregar dados. Verifique o console para mais detalhes.');
     }
 }
 
 async function saveAppData() {
-    console.log('Salvando dados no Supabase...');
+    console.log('Saving data to Supabase...');
 
     try {
         // 1. Upsert Employees
@@ -350,10 +224,10 @@ async function saveAppData() {
             });
         }
 
-        console.log('✅ Dados salvos no Supabase');
+        console.log('✅ Data saved to Supabase');
 
     } catch (error) {
-        console.error('Erro ao salvar dados:', error);
+        console.error('Error saving data:', error);
     }
 }
 
@@ -372,7 +246,6 @@ function setupEventListeners() {
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', () => {
             document.body.classList.toggle('light-mode');
-            document.documentElement.classList.toggle('light-mode');
             const isLight = document.body.classList.contains('light-mode');
             localStorage.setItem('theme', isLight ? 'light' : 'dark');
         });
@@ -383,171 +256,17 @@ function setupEventListeners() {
     document.getElementById('nextMonth').addEventListener('click', () => changeMonth(1));
 
     // Actions
-    const saveChangesBtn = document.getElementById('saveChanges');
-    if (saveChangesBtn) {
-        saveChangesBtn.addEventListener('click', async () => {
-            await saveAppData();
-            alert('✅ Alterações salvas no banco de dados!');
-        });
-    }
+    document.getElementById('generateSchedule').addEventListener('click', generateSchedule);
+    document.getElementById('addEmployee').addEventListener('click', showAddEmployeeModal);
+    document.getElementById('addShift').addEventListener('click', showAddShiftModal);
+    document.getElementById('addOncall').addEventListener('click', showAddOncallModal);
+    document.getElementById('addHoliday').addEventListener('click', showAddHolidayModal);
 
-    const generateScheduleBtn = document.getElementById('generateSchedule');
-    if (generateScheduleBtn) generateScheduleBtn.addEventListener('click', generateSchedule);
-
-    const addEmployeeBtn = document.getElementById('addEmployee');
-    if (addEmployeeBtn) addEmployeeBtn.addEventListener('click', () => openEmployeeModal());
-
-    const addVacationBtn = document.getElementById('addVacationBtn');
-    if (addVacationBtn) addVacationBtn.addEventListener('click', () => openVacationModal());
-
-    const addShiftBtn = document.getElementById('addShift');
-    if (addShiftBtn) addShiftBtn.addEventListener('click', showAddShiftModal);
-
-    const addOncallBtn = document.getElementById('addOncall');
-    if (addOncallBtn) addOncallBtn.addEventListener('click', showAddOncallModal);
-
-    const addHolidayBtn = document.getElementById('addHoliday');
-    if (addHolidayBtn) addHolidayBtn.addEventListener('click', showAddHolidayModal);
-
-    // Settings Actions
-    const quickImportBtn = document.getElementById('quickImport');
-    if (quickImportBtn) quickImportBtn.addEventListener('click', () => importCompleteData(false));
-
-    const cleanTestUsersBtn = document.getElementById('cleanTestUsers');
-    if (cleanTestUsersBtn) cleanTestUsersBtn.addEventListener('click', cleanTestUsers);
-
-    const clearDataBtn = document.getElementById('clearData');
-    if (clearDataBtn) clearDataBtn.addEventListener('click', clearAllData);
-
-    // Reports Export
-    const exportReportsBtn = document.getElementById('exportReportsBtn');
-    if (exportReportsBtn) exportReportsBtn.addEventListener('click', exportReportsToExcel);
-
-    // Logout
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            if (confirm('Deseja realmente sair?')) {
-                try {
-                    await supabase.auth.signOut();
-                } catch (error) {
-                    console.error('Erro ao sair:', error);
-                } finally {
-                    // Force clear Supabase local storage
-                    Object.keys(localStorage).forEach(key => {
-                        if (key.startsWith('sb-')) {
-                            localStorage.removeItem(key);
-                        }
-                    });
-                    window.location.reload();
-                }
-            }
-        });
-    }
-}
-
-function exportReportsToExcel() {
-    const year = AppState.currentMonth.getFullYear();
-    const month = AppState.currentMonth.getMonth();
-    const monthName = AppState.currentMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-
-    let csvContent = `RELATÓRIO DE HORAS - ${monthName.toUpperCase()}\n\n`;
-
-    // 1. Suporte FDS
-    csvContent += "SUPORTE FINAL DE SEMANA E FERIADOS\n";
-    csvContent += "Data;Dia;Nome;Turno;Horário;Horas\n";
-
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
-    const schedule = AppState.schedule[monthKey];
-
-    if (schedule) {
-        for (let day = 1; day <= daysInMonth; day++) {
-            const date = new Date(year, month, day);
-            const dayOfWeek = date.getDay();
-            const isHoliday = isDateHoliday(date);
-
-            if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isHoliday) continue;
-
-            AppState.employees.forEach(emp => {
-                const shiftId = schedule[emp.id]?.[String(day).padStart(2, '0')];
-                if (!shiftId) return;
-                const shift = AppState.shifts.find(s => s.id === shiftId);
-                if (!shift || ['f', 'fe', 'bh', 'at', 'ft'].includes(shift.id)) return;
-
-                let hours = 0;
-                if (shift.id === '12x36') hours = 12;
-                else {
-                    const times = shift.time.match(/(\d{2}):(\d{2})/g);
-                    if (times && times.length >= 2) {
-                        const [h1, m1] = times[0].split(':').map(Number);
-                        const [h2, m2] = times[1].split(':').map(Number);
-                        let diff = (h2 * 60 + m2) - (h1 * 60 + m1);
-                        if (diff < 0) diff += 24 * 60;
-                        hours = diff / 60;
-                    }
-                }
-
-                if (hours > 0) {
-                    csvContent += `${date.toLocaleDateString('pt-BR')};${date.toLocaleDateString('pt-BR', { weekday: 'short' })};${emp.name};${shift.name};${shift.time};${hours.toFixed(2).replace('.', ',')}\n`;
-                }
-            });
-        }
-    }
-
-    csvContent += "\n\nPLANTÕES (SOBREAVISO)\n";
-    csvContent += "Data;Dia;Nome;Plantão;Horário;Horas\n";
-
-    // 2. Plantões
-    const onCallRules = {
-        'PLANTÃO NOC': { weekdays: { hours: 9 }, weekends: { hours: 10 } },
-        'PLANTÃO VOZ': { weekdays: { hours: 14 }, weekends: { hours: 24 } },
-        'PLANTÃO TECH': { weekdays: { hours: 10 }, weekends: { hours: 24 } },
-        'PLANTÃO N3': { weekdays: { hours: 0 }, weekends: { hours: 0 } }
-    };
-
-    AppState.oncalls.forEach(oncall => {
-        const rule = onCallRules[oncall.name.toUpperCase()] || onCallRules['PLANTÃO NOC'];
-        const startDate = new Date(oncall.startDate);
-        const getMonday = (d) => {
-            const date = new Date(d);
-            const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-            return new Date(date.setDate(diff));
-        };
-        const startMonday = getMonday(startDate);
-        const rotation = oncall.rotation;
-
-        for (let day = 1; day <= daysInMonth; day++) {
-            const date = new Date(year, month, day);
-            const currentMonday = getMonday(date);
-            const dayOfWeek = date.getDay();
-            const isHoliday = isDateHoliday(date);
-            const isWeekendOrHoliday = dayOfWeek === 0 || dayOfWeek === 6 || isHoliday;
-
-            const diffTime = currentMonday.getTime() - startMonday.getTime();
-            const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
-
-            if (diffWeeks < 0) continue;
-
-            const personName = rotation[diffWeeks % rotation.length];
-            const hours = isWeekendOrHoliday ? rule.weekends.hours : rule.weekdays.hours;
-
-            if (hours > 0) {
-                csvContent += `${date.toLocaleDateString('pt-BR')};${date.toLocaleDateString('pt-BR', { weekday: 'short' })};${personName};${oncall.name};-;${hours.toFixed(2).replace('.', ',')}\n`;
-            }
-        }
-    });
-
-    // Download
-    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `Relatorio_Horas_${monthName.replace(/ /g, '_')}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    document.querySelector('.btn-export').addEventListener('click', exportToExcel);
+    document.getElementById('quickImport').addEventListener('click', () => importCompleteData(false));
+    document.getElementById('importExcel').addEventListener('click', importFromExcel);
+    document.getElementById('exportData').addEventListener('click', exportData);
+    document.getElementById('clearData').addEventListener('click', clearAllData);
 }
 
 // ===========================
@@ -563,7 +282,7 @@ function switchView(viewName) {
     document.getElementById(`${viewName}View`).classList.add('active');
 
     const titles = {
-        dashboard: { title: 'Painel', subtitle: 'Visão geral do sistema de escalas' },
+        dashboard: { title: 'Dashboard', subtitle: 'Visão geral do sistema de escalas' },
         calendar: { title: 'Escala do Mês', subtitle: 'Visualizar e gerenciar a escala mensal' },
         employees: { title: 'Funcionários', subtitle: 'Gerenciar cadastro de funcionários e férias' },
         shifts: { title: 'Turnos', subtitle: 'Configurar horários de trabalho' },
@@ -581,35 +300,12 @@ function switchView(viewName) {
     switch (viewName) {
         case 'dashboard': renderDashboard(); break;
         case 'calendar': renderCalendar(); break;
-        case 'employees': renderEmployees(); renderVacations(); break;
+        case 'employees': renderEmployees(); break;
         case 'shifts': renderShifts(); break;
         case 'oncall': renderOncall(); break;
         case 'holidays': renderHolidays(); break;
         case 'reports': renderReports(); break;
     }
-}
-
-async function cleanTestUsers() {
-    if (!confirm('Isso removerá todos os funcionários com "Teste" no nome. Continuar?')) return;
-
-    // Local Filter
-    const initialCount = AppState.employees.length;
-    AppState.employees = AppState.employees.filter(e => !e.name.toLowerCase().includes('teste'));
-    const removedCount = initialCount - AppState.employees.length;
-
-    // Supabase Delete
-    if (typeof supabase !== 'undefined') {
-        const { error } = await supabase.from('employees').delete().ilike('name', '%teste%');
-        if (error) {
-            console.error('Error cleaning test users:', error);
-            alert('Erro ao limpar banco de dados.');
-        }
-    }
-
-    saveAppData();
-    alert(`✅ Limpeza concluída! ${removedCount} usuários removidos.`);
-    renderEmployees();
-    updateStats();
 }
 
 // ===========================
@@ -771,25 +467,15 @@ function renderOnCallReports() {
         // We need to reconstruct the rotation for the month
         // Logic similar to generateSchedule but just for reading
         const startDate = new Date(oncall.startDate);
-        // Normalize start date to its Monday to align rotation
-        const getMonday = (d) => {
-            const date = new Date(d);
-            const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-            return new Date(date.setDate(diff));
-        };
-        const startMonday = getMonday(startDate);
         const rotation = oncall.rotation;
 
         for (let day = 1; day <= daysInMonth; day++) {
             const date = new Date(year, month, day);
-            const currentMonday = getMonday(date);
-
             const dayOfWeek = date.getDay(); // 0=Sun, 6=Sat
             const isHoliday = isDateHoliday(date);
             const isWeekendOrHoliday = dayOfWeek === 0 || dayOfWeek === 6 || isHoliday;
 
-            const diffTime = currentMonday.getTime() - startMonday.getTime();
+            const diffTime = date.getTime() - startDate.getTime();
             const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
 
             if (diffWeeks < 0) continue;
@@ -969,11 +655,21 @@ function renderUpcomingHolidays() {
 function renderCalendar() {
     const tableBody = document.getElementById('scheduleBody');
     const tableHeader = document.getElementById('calendarHeader');
+    const legendContainer = document.getElementById('shiftLegend');
 
     tableBody.innerHTML = '';
+    legendContainer.innerHTML = '';
 
-
-
+    // Render Legend
+    AppState.shifts.forEach(shift => {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `
+            <div class="legend-color" style="background-color: ${shift.color}40; border: 1px solid ${shift.color}"></div>
+            <span>${shift.name}</span>
+        `;
+        legendContainer.appendChild(item);
+    });
 
     const year = AppState.currentMonth.getFullYear();
     const month = AppState.currentMonth.getMonth();
@@ -995,100 +691,71 @@ function renderCalendar() {
     }
 
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
-    console.log('📅 Rendering Calendar for:', monthKey);
     const currentSchedule = AppState.schedule[monthKey];
 
     if (!currentSchedule) {
-        const isReadOnly = document.body.classList.contains('read-only-mode');
         tableBody.innerHTML = `
             <tr>
-                <td colspan="${daysInMonth + 3}" class="empty-state" style="padding: 3rem; text-align: center;">
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color: var(--text-muted);">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
-                        <p>Nenhuma escala encontrada para este mês.</p>
-                        ${isReadOnly
-                ? '<p style="font-size: 0.9rem; color: var(--text-secondary);">O administrador precisa gerar e <strong>SALVAR</strong> a escala.</p>'
-                : '<p style="font-size: 0.9rem; color: var(--text-secondary);">Clique em "Gerar Escala" e depois não esqueça de <strong>SALVAR</strong>.</p>'}
-                    </div>
+                <td colspan="${daysInMonth + 3}" class="empty-state">
+                    Nenhuma escala gerada para este mês. Clique em "Gerar Escala".
                 </td>
             </tr>
         `;
         return;
     }
 
-
-    const onCallHeader = document.createElement('tr');
-    onCallHeader.innerHTML = `
-        <td colspan="${daysInMonth + 3}" style="background: linear-gradient(90deg, rgba(191, 216, 62, 0.15) 0%, transparent 100%); color: #BFD83E; font-weight: bold; padding: 1rem; border-bottom: 1px solid rgba(191, 216, 62, 0.3); text-align: left; letter-spacing: 1px;">
-            <span style="margin-right: 8px;">★</span> ESCALA DE PLANTÃO
-        </td>
-        `;
-    tableBody.appendChild(onCallHeader);
-
-    AppState.oncalls.forEach(oncall => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td colspan="3" class="sticky-col" style="font-weight:600; color: var(--text-primary); text-align: left; padding-left: 1rem; border-right: 1px solid var(--border-color); background: var(--bg-card); z-index: 15;">
-                ${oncall.name}
+    // 1. RENDER ON-CALL ROWS
+    if (AppState.oncalls.length > 0) {
+        const onCallHeader = document.createElement('tr');
+        onCallHeader.innerHTML = `
+            <td colspan="${daysInMonth + 3}" style="background: linear-gradient(90deg, rgba(191, 216, 62, 0.15) 0%, transparent 100%); color: #BFD83E; font-weight: bold; padding: 1rem; border-bottom: 1px solid rgba(191, 216, 62, 0.3); text-align: left; letter-spacing: 1px;">
+                <span style="margin-right: 8px;">★</span> ESCALA DE PLANTÃO
             </td>
+        `;
+        tableBody.appendChild(onCallHeader);
+
+        AppState.oncalls.forEach(oncall => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td colspan="3" style="font-weight:600; color: var(--text-primary); text-align: left; padding-left: 1rem; border-right: 1px solid var(--border-color); background: var(--bg-card);">
+                    ${oncall.name}
+                </td>
             `;
 
-        const startDate = new Date(oncall.startDate);
-        const getMonday = (d) => {
-            const date = new Date(d);
-            const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-            return new Date(date.setDate(diff));
-        };
-        const startMonday = getMonday(startDate);
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dayOfWeek = date.getDay();
+                const td = document.createElement('td');
 
-        for (let day = 1; day <= daysInMonth; day++) {
-            const date = new Date(year, month, day);
-            const dayOfWeek = date.getDay();
-            const td = document.createElement('td');
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    td.style.backgroundColor = 'var(--bg-tertiary)';
+                }
 
-            if (dayOfWeek === 0 || dayOfWeek === 6) {
-                td.style.backgroundColor = 'var(--bg-tertiary)';
-            }
-
-            const currentMonday = getMonday(date);
-            const diffTime = currentMonday.getTime() - startMonday.getTime();
-            const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
-
-            let assigned = null;
-            if (diffWeeks >= 0 && oncall.rotation && oncall.rotation.length > 0) {
-                assigned = oncall.rotation[diffWeeks % oncall.rotation.length];
-            }
-
-            if (assigned) {
-                td.innerHTML = `
-                    <div style="
-                        background-color: var(--bg-card);
-                        color: var(--text-primary);
-                        border: 1px solid var(--primary);
-                        border-radius: 4px;
-                        padding: 2px 4px;
-                        font-size: 0.7rem;
-                        font-weight: 600;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-                    ">
-                        ${assigned}
-                    </div>
+                const assigned = oncall.schedule[day];
+                if (assigned) {
+                    td.innerHTML = `
+                        <div style="
+                            background-color: var(--bg-card); 
+                            color: var(--text-primary); 
+                            border: 1px solid var(--primary); 
+                            border-radius: 4px; 
+                            padding: 2px 4px; 
+                            font-size: 0.7rem; 
+                            font-weight: 600;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                        ">
+                            ${assigned}
+                        </div>
                     `;
+                }
+                tr.appendChild(td);
             }
-            tr.appendChild(td);
-        }
-        tableBody.appendChild(tr);
-    });
-
+            tableBody.appendChild(tr);
+        });
+    }
 
     // 2. RENDER EMPLOYEE ROWS
     const employeesBySector = {};
@@ -1102,22 +769,22 @@ function renderCalendar() {
     Object.keys(employeesBySector).forEach(sector => {
         const sectorHeader = document.createElement('tr');
         sectorHeader.innerHTML = `
-        <td colspan="${daysInMonth + 3}" style="background: var(--bg-tertiary); font-weight: bold; text-align: left; padding: 0.75rem 1rem; color: var(--text-primary); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
-            ${sector}
-        </td>
-    `;
+            <td colspan="${daysInMonth + 3}" style="background: var(--bg-tertiary); font-weight: bold; text-align: left; padding: 0.75rem 1rem; color: var(--text-primary); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                ${sector}
+            </td>
+        `;
         tableBody.appendChild(sectorHeader);
 
         employeesBySector[sector].forEach(emp => {
             const tr = document.createElement('tr');
             const shift = AppState.shifts.find(s => s.id === emp.shiftId);
-            const shiftTime = shift ? shift.time : '';
+            const shiftName = shift ? shift.name : emp.shiftId;
 
             tr.innerHTML = `
-            <td class="sticky-col" style="background: var(--bg-card); color: var(--text-secondary); font-size: 0.75rem;">${emp.sector}</td>
-            <td class="sticky-col" style="background: var(--bg-card); color: var(--text-primary); font-weight: 500;">${emp.name}</td>
-                <td class="sticky-col" style="background: var(--bg-card); color: var(--text-secondary); font-size: 0.75rem;">${shiftTime}</td>
-    `;
+                <td class="sticky-col" style="background: var(--bg-card); color: var(--text-secondary); font-size: 0.75rem;">${emp.sector}</td>
+                <td class="sticky-col" style="background: var(--bg-card); color: var(--text-primary); font-weight: 500;">${emp.name}</td>
+                <td class="sticky-col" style="background: var(--bg-card); color: var(--text-secondary); font-size: 0.75rem;">${shiftName}</td>
+            `;
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(year, month, day);
@@ -1138,26 +805,42 @@ function renderCalendar() {
                 td.onclick = () => editCell(emp.id, dayKey, shiftId);
 
                 if (shiftObj) {
-                    // Use dynamic colors from shift definition
-                    const color = shiftObj.color || '#cccccc';
-                    // Create transparent background (approx 15% opacity)
-                    const shiftColor = color.startsWith('#') && color.length === 7 ? color + '26' : color;
-                    const textColor = color;
-                    const borderColor = color;
+                    let shiftColor = 'var(--shift-off)';
+                    let textColor = 'white';
+                    let borderColor = 'transparent';
+                    const type = shiftObj.name.toUpperCase();
+
+                    if (type === 'F') {
+                        shiftColor = 'rgba(255, 235, 59, 0.15)';
+                        textColor = '#b45309';
+                        borderColor = '#fcd34d';
+                    } else if (type === 'FE') {
+                        shiftColor = 'var(--shift-fe)';
+                    } else if (['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'].includes(type)) {
+                        if (['T1', 'T4', 'T7', 'T10'].includes(type)) shiftColor = 'rgba(0, 176, 240, 0.15)';
+                        if (['T2', 'T5', 'T8', 'T11'].includes(type)) shiftColor = 'rgba(0, 176, 80, 0.15)';
+                        if (['T3', 'T6', 'T9', 'T12'].includes(type)) shiftColor = 'rgba(255, 107, 157, 0.15)';
+
+                        if (['T1', 'T4', 'T7', 'T10'].includes(type)) { textColor = '#0077a3'; borderColor = '#00b0f0'; }
+                        if (['T2', 'T5', 'T8', 'T11'].includes(type)) { textColor = '#007033'; borderColor = '#00b050'; }
+                        if (['T3', 'T6', 'T9', 'T12'].includes(type)) { textColor = '#a8326b'; borderColor = '#ff6b9d'; }
+                    } else if (type === 'BH') {
+                        shiftColor = '#a1a1aa';
+                    }
 
                     td.innerHTML = `
-                    <div class="shift-cell" style="
-                        background-color: ${shiftColor};
-                        color: ${textColor};
-                        border: 1px solid ${borderColor};
-                        border-radius: 6px;
-                        padding: 2px 0;
-                        font-weight: 700;
-                        font-size: 0.75rem;
-                        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-                    ">
-                        ${shiftObj.name}
-                    </div>
+                        <div class="shift-cell" style="
+                            background-color: ${shiftColor}; 
+                            color: ${textColor}; 
+                            border: 1px solid ${borderColor};
+                            border-radius: 6px;
+                            padding: 2px 0;
+                            font-weight: 700;
+                            font-size: 0.75rem;
+                            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+                        ">
+                            ${shiftObj.name}
+                        </div>
                     `;
                 } else {
                     td.innerHTML = '<span style="color: var(--text-muted);">-</span>';
@@ -1297,41 +980,21 @@ function renderVacations() {
     }).join('');
 }
 
-// --- Vacation Modal Logic ---
-function openVacationModal() {
-    const modal = document.getElementById('vacationModal');
-    const empSelect = document.getElementById('vacationEmp');
+function addVacation() {
+    const name = prompt('Nome do Funcionário (exatamente como no cadastro):');
+    if (!name) return;
 
-    // Populate Employees
-    empSelect.innerHTML = AppState.employees
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map(e => `<option value="${e.name}">${e.name}</option>`)
-        .join('');
-
-    document.getElementById('vacationStart').value = '';
-    document.getElementById('vacationEnd').value = '';
-
-    modal.style.display = 'flex';
-}
-
-function closeVacationModal() {
-    document.getElementById('vacationModal').style.display = 'none';
-}
-
-function saveVacation() {
-    const name = document.getElementById('vacationEmp').value;
-    const start = document.getElementById('vacationStart').value;
-    const end = document.getElementById('vacationEnd').value;
-
-    if (!name || !start || !end) {
-        alert('Preencha todos os campos!');
+    const empExists = AppState.employees.some(e => e.name.toLowerCase() === name.toLowerCase());
+    if (!empExists) {
+        alert('❌ Funcionário não encontrado! Verifique o nome.');
         return;
     }
 
-    if (start > end) {
-        alert('A data de início não pode ser depois da data de fim.');
-        return;
-    }
+    const start = prompt('Data de Início (AAAA-MM-DD):');
+    if (!start) return;
+
+    const end = prompt('Data de Fim (AAAA-MM-DD):');
+    if (!end) return;
 
     if (!AppState.vacations) AppState.vacations = [];
 
@@ -1344,37 +1007,7 @@ function saveVacation() {
 
     saveAppData();
     renderVacations();
-    closeVacationModal();
     alert('✅ Férias agendadas com sucesso!');
-}
-
-function renderVacations() {
-    const tbody = document.getElementById('vacationsTable');
-    if (!tbody) return; // Guard clause if element doesn't exist
-
-    if (!AppState.vacations || AppState.vacations.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhuma férias agendada</td></tr>';
-        return;
-    }
-
-    // Sort by start date
-    const sortedVacations = [...AppState.vacations].sort((a, b) => new Date(a.start) - new Date(b.start));
-
-    tbody.innerHTML = sortedVacations.map(v => {
-        const startFmt = new Date(v.start).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-        const endFmt = new Date(v.end).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-        return `
-        <tr>
-            <td>${v.employeeName}</td>
-            <td>${startFmt}</td>
-            <td>${endFmt}</td>
-            <td>
-                <button class="btn-icon btn-sm" onclick="deleteVacation('${v.id}')" style="color: #ff6b6b;">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="2"/></svg>
-                </button>
-            </td>
-        </tr>
-    `}).join('');
 }
 
 function deleteVacation(id) {
@@ -1456,143 +1089,36 @@ function renderHolidays() {
 // ===========================
 // MODAL & UTILS
 // ===========================
-// ===========================
-// MODAL & UTILS
-// ===========================
+function showAddEmployeeModal() {
+    const name = prompt('Nome do Funcionário:');
+    if (!name) return;
 
-// --- Employee Modal Logic ---
-function openEmployeeModal(empId = null) {
-    const modal = document.getElementById('employeeModal');
-    const title = document.getElementById('employeeModalTitle');
-    const form = document.getElementById('employeeForm');
+    const sector = prompt('Setor (ex: SUPORTE N1, REDES):', 'SUPORTE N1');
+    if (!sector) return;
 
-    // Populate Selects
-    const sectorSelect = document.getElementById('empSector');
-    sectorSelect.innerHTML = AppState.sectors.map(s => `<option value="${s}">${s}</option>`).join('');
-    // Add option to add new sector if needed? For now, stick to existing or let user manage sectors elsewhere.
-    // Or add an "Other" option? Let's keep it simple for now, maybe add a prompt if they want a new sector.
-    // Actually, let's add all unique sectors from employees + a generic list if empty.
+    const shiftId = prompt('Turno Padrão (ex: t1, t2, 12x36):', 't1');
+    if (!shiftId) return;
 
-    const shiftSelect = document.getElementById('empShift');
-    shiftSelect.innerHTML = AppState.shifts.map(s => `<option value="${s.id}">${s.name} (${s.time})</option>`).join('');
+    const weekendRule = prompt('Regra de Fim de Semana (alternating, alternating_sat, off, 12x36):', 'alternating');
 
-    if (empId) {
-        // EDIT MODE
-        const emp = AppState.employees.find(e => e.id === empId);
-        if (!emp) return;
+    const newEmp = {
+        id: generateId(),
+        name,
+        sector,
+        shiftId: shiftId.toLowerCase(),
+        weekendRule
+    };
 
-        title.textContent = 'Editar Funcionário';
-        document.getElementById('empId').value = emp.id;
-        document.getElementById('empName').value = emp.name;
-        document.getElementById('empSector').value = emp.sector;
-        document.getElementById('empShift').value = emp.shiftId;
-        document.getElementById('empWeekendRule').value = emp.weekendRule;
-    } else {
-        // ADD MODE
-        title.textContent = 'Adicionar Funcionário';
-        document.getElementById('empId').value = '';
-        form.reset();
-        // Set defaults
-        if (AppState.sectors.length > 0) document.getElementById('empSector').value = AppState.sectors[0];
-        if (AppState.shifts.length > 0) document.getElementById('empShift').value = AppState.shifts[0].id;
-        document.getElementById('empWeekendRule').value = 'alternating';
-    }
+    AppState.employees.push(newEmp);
 
-    modal.style.display = 'flex';
-}
-
-function closeEmployeeModal() {
-    document.getElementById('employeeModal').style.display = 'none';
-}
-
-function saveEmployee() {
-    const id = document.getElementById('empId').value;
-    const name = document.getElementById('empName').value;
-    const sector = document.getElementById('empSector').value;
-    const shiftId = document.getElementById('empShift').value;
-    const weekendRule = document.getElementById('empWeekendRule').value;
-
-    if (!name || !sector || !shiftId) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
-        return;
-    }
-
-    if (id) {
-        // UPDATE
-        const index = AppState.employees.findIndex(e => e.id === id);
-        if (index !== -1) {
-            AppState.employees[index] = { ...AppState.employees[index], name, sector, shiftId, weekendRule };
-            alert('✅ Funcionário atualizado!');
-        }
-    } else {
-        // CREATE
-        const newEmp = {
-            id: generateId(),
-            name,
-            sector,
-            shiftId,
-            weekendRule
-        };
-        AppState.employees.push(newEmp);
-        alert('✅ Funcionário adicionado!');
+    if (!AppState.sectors.includes(sector)) {
+        AppState.sectors.push(sector);
     }
 
     saveAppData();
     renderEmployees();
     updateStats();
-    closeEmployeeModal();
-}
-
-// Update renderEmployees to include Edit button
-function renderEmployees() {
-    const container = document.getElementById('employeesList');
-
-    // Group by Sector
-    const employeesBySector = AppState.employees.reduce((acc, emp) => {
-        acc[emp.sector] = acc[emp.sector] || [];
-        acc[emp.sector].push(emp);
-        return acc;
-    }, {});
-
-    container.innerHTML = Object.keys(employeesBySector).map(sector => `
-        <div class="sector-group" style="margin-bottom: 2rem;">
-            <h3 style="margin-bottom: 1rem; color: var(--primary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-                ${sector} <span class="badge" style="margin-left: 0.5rem;">${employeesBySector[sector].length}</span>
-            </h3>
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Turno</th>
-                            <th>Regra FDS</th>
-                            <th style="text-align: right;">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${employeesBySector[sector].map(emp => {
-        const shift = AppState.shifts.find(s => s.id === emp.shiftId);
-        return `
-                            <tr>
-                                <td>${emp.name}</td>
-                                <td><span class="badge" style="background-color: ${shift ? shift.color + '20' : '#333'}; color: ${shift ? shift.color : '#fff'}; border: 1px solid ${shift ? shift.color : '#555'}">${shift ? shift.name : emp.shiftId}</span></td>
-                                <td>${getWeekendRuleLabel(emp.weekendRule)}</td>
-                                <td style="text-align: right;">
-                                    <button class="btn-icon" onclick="openEmployeeModal('${emp.id}')" title="Editar">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                    </button>
-                                    <button class="btn-icon" onclick="deleteEmployee('${emp.id}')" title="Excluir" style="color: #ff6b6b;">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                    </button>
-                                </td>
-                            </tr>
-                            `;
-    }).join('')}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    `).join('');
+    alert('✅ Funcionário adicionado com sucesso!');
 }
 
 function showAddShiftModal() {
@@ -1676,47 +1202,28 @@ function showAddHolidayModal() {
     alert('✅ Feriado adicionado!');
 }
 
-async function deleteEmployee(id) {
+function deleteEmployee(id) {
     if (confirm('Tem certeza que deseja remover este funcionário?')) {
-        // 1. Remove from Local State
         AppState.employees = AppState.employees.filter(e => e.id !== id);
-
-        // 2. Remove from Supabase
-        if (typeof supabase !== 'undefined') {
-            const { error } = await supabase.from('employees').delete().eq('id', id);
-            if (error) {
-                console.error('Error deleting employee:', error);
-                alert('Erro ao excluir do banco de dados.');
-                return; // Stop if DB delete fails
-            }
-        }
-
+        saveAppData();
         renderEmployees();
         updateStats();
     }
 }
 
-async function deleteOncall(id) {
+function deleteOncall(id) {
     if (confirm('Remover este plantão?')) {
         AppState.oncalls = AppState.oncalls.filter(o => o.id !== id);
-
-        if (typeof supabase !== 'undefined') {
-            await supabase.from('oncalls').delete().eq('id', id);
-        }
-
+        saveAppData();
         renderOncall();
         updateStats();
     }
 }
 
-async function deleteHoliday(date) {
+function deleteHoliday(date) {
     if (confirm('Remover este feriado?')) {
         AppState.holidays = AppState.holidays.filter(h => h.date !== date);
-
-        if (typeof supabase !== 'undefined') {
-            await supabase.from('holidays').delete().eq('date', date);
-        }
-
+        saveAppData();
         renderHolidays();
         updateStats();
     }
@@ -1839,19 +1346,6 @@ function generateSchedule() {
                         if (weekNum % 2 !== 0) assignedShiftId = 'f';
                         else assignedShiftId = 't10';
                     }
-                } else if (emp.weekendRule === 'alternating_sun') {
-                    // Logic: Work Sunday on alternating weeks. Saturday is always OFF.
-                    // We use the same parity check as 'alternating' to keep teams aligned.
-                    const firstDayOfYear = new Date(year, 0, 1);
-                    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-                    const weekNum = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-
-                    if ((weekNum + index) % 2 !== 0) {
-                        assignedShiftId = 'f'; // Off Weekend
-                    } else {
-                        if (dayOfWeek === 6) assignedShiftId = 'f'; // Saturday Off
-                        if (dayOfWeek === 0) assignedShiftId = 't5'; // Sunday Work (Using T5 as default Sunday shift)
-                    }
                 }
             }
 
@@ -1866,30 +1360,19 @@ function generateSchedule() {
     });
 
     // 2. Process Plantões (On-Call)
-    // 2. Process Plantões (On-Call)
     AppState.oncalls.forEach(oncall => {
         oncall.schedule = {}; // Reset for the month
         const startDate = new Date(oncall.startDate);
-        // Normalize start date to its Monday to align rotation
-        const getMonday = (d) => {
-            const date = new Date(d);
-            const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-            return new Date(date.setDate(diff));
-        };
-        const startMonday = getMonday(startDate);
         const rotation = oncall.rotation;
 
         for (let day = 1; day <= daysInMonth; day++) {
             const currentDate = new Date(year, month, day);
-            const currentMonday = getMonday(currentDate);
 
-            const diffTime = currentMonday.getTime() - startMonday.getTime();
+            const diffTime = currentDate.getTime() - startDate.getTime();
             const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
 
             if (diffWeeks >= 0) {
                 const personIndex = diffWeeks % rotation.length;
-                // Handle negative modulo if needed (though diffWeeks >= 0 check handles start)
                 oncall.schedule[day] = rotation[personIndex];
             }
         }
@@ -1898,15 +1381,4 @@ function generateSchedule() {
     saveAppData();
     renderCalendar();
     alert(`✅ Escala de ${monthKey} gerada com sucesso!\n\nConsiderando:\n- Férias\n- Regra 12x36\n- Plantões`);
-}
-
-function getWeekendRuleLabel(rule) {
-    switch (rule) {
-        case 'alternating': return 'FDS Alternado';
-        case 'alternating_sat': return 'Sábado Alternado';
-        case 'alternating_sun': return 'Domingo Alternado';
-        case 'off': return 'FDS Folga';
-        case '12x36': return 'Escala 12x36';
-        default: return rule;
-    }
 }
