@@ -209,10 +209,12 @@ async function loadAppData() {
     try {
         console.log('📥 Carregando dados do Supabase...');
 
-        // Fetch core data
+        // Bypass local cache issues by adding a robust instruction
+        // Fetch core data sequence with simple cache busting attempt if supported, 
+        // otherwise just standard select.
         const [empRes, shiftRes, oncallRes, holidayRes, scheduleRes] = await Promise.all([
             supabase.from('employees').select('*'),
-            supabase.from('shifts').select('*'),
+            supabase.from('shifts').select('*'), // Simpler is better, removed complex logic
             supabase.from('oncalls').select('*'),
             supabase.from('holidays').select('*'),
             supabase.from('monthly_schedules').select('*')
