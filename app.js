@@ -252,6 +252,9 @@ async function loadAppData() {
             type: h.type
         }));
 
+        // DEBUG: Check what's coming from Supabase
+        console.log('🔍 Raw Shifts Data:', shiftRes.data);
+
         AppState.shifts = shiftRes.data.map(s => ({
             id: s.id,
             name: s.name,
